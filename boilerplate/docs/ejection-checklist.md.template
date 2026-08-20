@@ -1,0 +1,23 @@
+# Ejection checklist for {{KTM_CREATE_PROJECT_NAME}}
+
+Eject/self-contained packaging is a future explicit flow, not a normal `ktm pack` mode today.
+
+## Current expectation
+
+- [ ] `ktm pack --mode compiled` succeeds without vendoring dependency closure.
+- [ ] `ktm pack --mode compiled-source` succeeds without vendoring dependency closure.
+- [ ] `ktm pack --mode eject` fails until KTM implements a reviewed eject flow.
+- [ ] Normal archives do not contain `deps/`, `.ktrees/`, KTM store paths, or kt-node dependency libraries.
+
+## SDK-specific risk
+
+Python runtime source is packaged as the app artifact; ejecting would additionally vendor native kt-node dependency libraries and their licenses, which is not part of compiled or compiled-source mode.
+
+## Before any future eject implementation
+
+- [ ] Make eject an explicit command or mode with clear UX; do not silently overload `compiled-source`.
+- [ ] Copy the full dependency closure deterministically into an owned payload root such as `deps/`.
+- [ ] Include license notices and SBOM/provenance evidence for vendored dependencies.
+- [ ] Document who owns security updates after ejection.
+- [ ] Re-run native link audit against the self-contained closure.
+- [ ] Add release tests proving compiled modes remain KTM-managed while eject mode vendors only the intended closure.

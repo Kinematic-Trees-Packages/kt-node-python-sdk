@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "ktm.pack.v1",
+  "defaultMode": "compiled",
+  "lists": {
+    "compiled": {
+      "description": "Python source is the runtime artifact, so compiled mode includes the Python package tree.",
+      "include": [
+        "python"
+      ]
+    },
+    "source": {
+      "description": "No extra source list is required for the default Python template because compiled mode already carries runtime source.",
+      "include": []
+    }
+  },
+  "modes": {
+    "compiled": {
+      "description": "Publish only the compiled/runtime artifact list.",
+      "lists": [
+        "compiled"
+      ]
+    },
+    "compiled-source": {
+      "description": "Publish compiled/runtime artifacts plus the source list. Dependencies remain KTM-managed.",
+      "lists": [
+        "compiled",
+        "source"
+      ]
+    }
+  }
+}

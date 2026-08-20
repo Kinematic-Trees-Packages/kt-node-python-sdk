@@ -1,0 +1,70 @@
+# {{KTM_CREATE_PROJECT_NAME}} Python SDK guide
+
+This project was generated from the Kinematic Trees kt-node Python SDK boilerplate. It is a normal editable Python project plus KTM metadata for dependency resolution and packaging.
+
+## Project layout
+
+- `src/{{KTM_CREATE_MODULE_NAME}}/kt_node.py` — small `ctypes` loader for the KTM-managed `libkt_node` native runtime.
+- `src/{{KTM_CREATE_MODULE_NAME}}/robot.py` — project-facing `Robot` class. Start custom behavior here.
+- `examples/basic.py` — minimal example that constructs `Robot` and prints `Robot.status()`.
+- `tests/test_smoke.py` — smoke test for the generated API and native runtime wiring.
+- `scripts/build.sh` — writes the intentional package payload under `$KTM_BUILD_OUTPUT/python`.
+- `ktm-pack.json` — editable package-owned pack mode definition.
+
+## Using the SDK
+
+Run through KTM so the kt-node native dependency is installed and visible:
+
+```bash
+ktm doctor --platform {{KTM_CREATE_PRIMARY_PLATFORM}}
+ktm dev --platform {{KTM_CREATE_PRIMARY_PLATFORM}}
+ktm test --platform {{KTM_CREATE_PRIMARY_PLATFORM}}
+```
+
+In project code:
+
+```python
+from {{KTM_CREATE_MODULE_NAME}} import Robot
+
+robot = Robot()
+print(robot.status())
+```
+
+`Robot.status()` reports the loaded kt-node ABI version. If you are writing structural tests that should not require the native library, instantiate `Robot(native_required=False)`.
+
+## Manual Python workflow
+
+Prefer KTM commands. If you need to run Python tooling directly, export the KTM environment first:
+
+```bash
+eval "$(ktm env --shell)"
+python3 -m pytest
+python3 examples/basic.py
+```
+
+## Packing modes
+
+- `compiled` packages the `python/` runtime tree. Python source is the runtime artifact, so this includes the module source used at runtime.
+- `compiled-source` composes `compiled` plus an empty default `source` list. Add entries to the `source` list only when they should become package payload.
+
+Docs are copied into generated projects for humans/agents, but are intentionally not packaged by default.
+## Dependency ownership / eject review
+
+The default pack modes keep `kinematic-trees/kt-node@{{KTM_CREATE_KT_NODE_VERSION}}` as a KTM-managed dependency. A normal compiled or compiled-source package must not copy KTM store paths, dependency shared libraries, headers, or metadata into the project payload.
+
+A future eject/self-contained flow should be explicit and separately reviewed because it changes who owns dependency updates, license notices, SBOM evidence, and security patching. Until that flow exists, `ktm pack --mode eject` is expected to fail rather than silently vendor dependencies.
+
+## Quick payload inspection
+
+After packing, inspect contents with:
+
+```bash
+tar -tzf _pack/*/{{KTM_CREATE_PRIMARY_PLATFORM}}/*.tar.gz | sort
+```
+
+Expected defaults:
+
+- `compiled`: only the `python/` runtime payload root.
+- `compiled-source`: the same `python/` runtime payload root by default; the separate `source` list is empty unless you intentionally add entries.
+- `docs/`: present in the generated project folder, absent from archives by default.
+- `deps/`, `.ktrees/`, KTM store paths, and kt-node dependency libraries: absent from normal pack archives.

@@ -11,7 +11,7 @@
     "packageType": "local",
     "keywords": ["kinematic-trees", "robotics", "kt-node", "{{KTM_CREATE_LANGUAGE}}"]
   },
-  "files": ["README.md", "scripts", "examples", "package.ktm.json", "src"],
+  "files": ["README.md", "scripts", "examples", "package.ktm.json", "ktm-pack.json", "src"],
   "distribution": {"packages": []},
   "runEnvironments": {{KTM_CREATE_RUN_ENVIRONMENTS_JSON}},
   "runtime": {"sdk": "{{KTM_CREATE_RUNTIME_SDK}}"},

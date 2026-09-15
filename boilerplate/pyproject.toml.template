@@ -3,6 +3,7 @@ name = "{{KTM_CREATE_PACKAGE_NAME}}"
 version = "0.1.0"
 description = "{{KTM_CREATE_DESCRIPTION}}"
 requires-python = ">=3.9"
+dependencies = ["kt-node-python-sdk>=0.2.0"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

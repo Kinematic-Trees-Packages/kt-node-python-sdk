@@ -1,6 +1,5 @@
 from {{KTM_CREATE_MODULE_NAME}} import Robot
 
 
-def test_robot_status_loads_kt_node() -> None:
-    status = Robot(native_required=True).status()
-    assert "kt-node ABI" in status
+def test_robot_uses_public_sdk_node() -> None:
+    assert Robot.__mro__[1].__name__ == "Node"

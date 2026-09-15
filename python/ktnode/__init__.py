@@ -1,19 +1,35 @@
 """High-level Python SDK for KT Node runtime nodes."""
 
-from .runtime import Context, KtError, Message, Node, NextStep, Runtime, run
-from .vision import RGBImage, decode_image_sample_summary, encode_image_sample, make_rgb_image, vision_sample_schema
+from .runtime import (
+    AbiCompatibilityError,
+    Capability,
+    ClosedResourceError,
+    ConfigUpdate,
+    ConfigUpdateResult,
+    Context,
+    KtError,
+    Message,
+    NextStep,
+    Node,
+    Runtime,
+    RuntimeInfo,
+    UnsupportedCapabilityError,
+    run,
+)
 
 __all__ = [
+    "AbiCompatibilityError",
+    "Capability",
+    "ClosedResourceError",
+    "ConfigUpdate",
+    "ConfigUpdateResult",
     "Context",
     "KtError",
     "Message",
-    "Node",
     "NextStep",
+    "Node",
     "Runtime",
-    "RGBImage",
-    "decode_image_sample_summary",
-    "encode_image_sample",
-    "make_rgb_image",
+    "RuntimeInfo",
+    "UnsupportedCapabilityError",
     "run",
-    "vision_sample_schema",
 ]

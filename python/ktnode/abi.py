@@ -15,6 +15,7 @@ KT_ABI_VERSION_MAJOR = 1
 KT_ABI_VERSION_MINOR = 2
 
 KT_STATUS_OK = 0
+KT_STATUS_UNSUPPORTED_ABI = 3
 
 KT_READ_ONE = 0
 KT_READ_ALL_AVAILABLE = 1
@@ -24,6 +25,16 @@ KT_ALGORITHM_CONTINUE = 0
 KT_ALGORITHM_STOP = 1
 KT_ALGORITHM_RECOVERABLE = 2
 KT_ALGORITHM_FATAL = 3
+
+KT_CONFIG_UPDATE_ACCEPT = 0
+KT_CONFIG_UPDATE_REJECT_RECOVERABLE = 1
+KT_CONFIG_UPDATE_REJECT_FATAL = 2
+KT_CONFIG_UPDATE_STOP = 3
+
+KT_CAPABILITY_HTTP = 1
+KT_CAPABILITY_KT_LAN = 2
+KT_CAPABILITY_KT_SHM = 4
+KT_CAPABILITY_WEBRTC = 8
 
 
 class KtAlgorithmContext(ctypes.Structure):
@@ -108,6 +119,53 @@ class KtRuntimeOptionsV1(ctypes.Structure):
     ]
 
 
+class KtConfigUpdateV1(ctypes.Structure):
+    _fields_ = [
+        ("struct_size", ctypes.c_uint32),
+        ("abi_version", ctypes.c_uint32),
+        ("old_revision", ctypes.c_uint64),
+        ("new_revision", ctypes.c_uint64),
+        ("patch_json", KtStringView),
+        ("old_config_json", KtStringView),
+        ("new_config_json", KtStringView),
+        ("changed_paths_json", KtStringView),
+        ("flags", ctypes.c_uint32),
+        ("reserved", ctypes.c_uint32 * 7),
+    ]
+
+
+KtAlgorithmConfigUpdateFn = ctypes.CFUNCTYPE(
+    ctypes.c_uint32,
+    ctypes.c_void_p,
+    ctypes.POINTER(KtAlgorithmContext),
+    ctypes.POINTER(KtConfigUpdateV1),
+)
+
+
+class KtAlgorithmCallbacksV2(ctypes.Structure):
+    _fields_ = [
+        ("struct_size", ctypes.c_uint32),
+        ("abi_version", ctypes.c_uint32),
+        ("setup", KtAlgorithmSetupFn),
+        ("step", KtAlgorithmStepFn),
+        ("close", KtAlgorithmCloseFn),
+        ("config_update", KtAlgorithmConfigUpdateFn),
+        ("reserved", ctypes.c_uint64 * 4),
+    ]
+
+
+class KtRuntimeOptionsV2(ctypes.Structure):
+    _fields_ = [
+        ("struct_size", ctypes.c_uint32),
+        ("abi_version", ctypes.c_uint32),
+        ("package_path", KtStringView),
+        ("runtime_path", KtStringView),
+        ("callbacks", ctypes.POINTER(KtAlgorithmCallbacksV2)),
+        ("user_data", ctypes.c_void_p),
+        ("reserved", ctypes.c_uint64 * 4),
+    ]
+
+
 class KtVersionV1(ctypes.Structure):
     _fields_ = [
         ("struct_size", ctypes.c_uint32),
@@ -181,6 +239,7 @@ def load_library(path: str | None = None) -> ctypes.CDLL:
 
     lib.kt_abi_version_major.restype = ctypes.c_uint32
     lib.kt_abi_version_minor.restype = ctypes.c_uint32
+    lib.kt_runtime_build_id.restype = KtStringView
 
     lib.kt_status_name.argtypes = [ctypes.c_uint32]
     lib.kt_status_name.restype = KtStringView
@@ -206,6 +265,12 @@ def load_library(path: str | None = None) -> ctypes.CDLL:
     lib.kt_context_read.restype = ctypes.c_uint32
     lib.kt_context_metrics_json.argtypes = [ctypes.POINTER(KtAlgorithmContext), ctypes.POINTER(ctypes.POINTER(KtOwnedBytes)), ctypes.POINTER(ctypes.POINTER(KtError))]
     lib.kt_context_metrics_json.restype = ctypes.c_uint32
+    if hasattr(lib, "kt_context_config_json"):
+        lib.kt_context_config_json.argtypes = [ctypes.POINTER(KtAlgorithmContext), ctypes.POINTER(ctypes.POINTER(KtOwnedBytes)), ctypes.POINTER(ctypes.POINTER(KtError))]
+        lib.kt_context_config_json.restype = ctypes.c_uint32
+    if hasattr(lib, "kt_context_config_revision"):
+        lib.kt_context_config_revision.argtypes = [ctypes.POINTER(KtAlgorithmContext)]
+        lib.kt_context_config_revision.restype = ctypes.c_uint64
     lib.kt_owned_bytes_view.argtypes = [ctypes.POINTER(KtOwnedBytes)]
     lib.kt_owned_bytes_view.restype = KtBytesView
     lib.kt_owned_bytes_destroy.argtypes = [ctypes.POINTER(ctypes.POINTER(KtOwnedBytes))]
@@ -220,6 +285,9 @@ def load_library(path: str | None = None) -> ctypes.CDLL:
 
     lib.kt_runtime_create_v1.argtypes = [ctypes.POINTER(KtRuntimeOptionsV1), ctypes.POINTER(ctypes.POINTER(KtRuntime)), ctypes.POINTER(ctypes.POINTER(KtError))]
     lib.kt_runtime_create_v1.restype = ctypes.c_uint32
+    if hasattr(lib, "kt_runtime_create_v2"):
+        lib.kt_runtime_create_v2.argtypes = [ctypes.POINTER(KtRuntimeOptionsV2), ctypes.POINTER(ctypes.POINTER(KtRuntime)), ctypes.POINTER(ctypes.POINTER(KtError))]
+        lib.kt_runtime_create_v2.restype = ctypes.c_uint32
     lib.kt_runtime_run.argtypes = [ctypes.POINTER(KtRuntime), ctypes.POINTER(ctypes.POINTER(KtError))]
     lib.kt_runtime_run.restype = ctypes.c_uint32
     lib.kt_runtime_destroy.argtypes = [ctypes.POINTER(ctypes.POINTER(KtRuntime)), ctypes.POINTER(ctypes.POINTER(KtError))]

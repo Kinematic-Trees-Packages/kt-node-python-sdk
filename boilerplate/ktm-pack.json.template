@@ -1,16 +1,23 @@
 {
-  "schemaVersion": "ktm.pack.v1",
+  "schemaVersion": "ktm.pack.v2",
+  "minimumKTMVersion": "1.2.20",
   "defaultMode": "compiled",
+  "globalExclude": [
+    "**/__pycache__/**",
+    "**/*.py[cod]",
+    "**/.pytest_cache/**",
+    "**/.mypy_cache/**",
+    "**/.ruff_cache/**",
+    "**/.DS_Store"
+  ],
   "lists": {
     "compiled": {
       "description": "Python source is the runtime artifact, so compiled mode includes the Python package tree.",
-      "include": [
-        "python"
-      ]
+      "include": ["runtime"]
     },
     "source": {
-      "description": "No extra source list is required for the default Python template because compiled mode already carries runtime source.",
-      "include": []
+      "description": "Python tests and examples used to develop and validate the runtime package.",
+      "include": ["source"]
     }
   },
   "modes": {
@@ -27,5 +34,10 @@
         "source"
       ]
     }
-  }
+  },
+  "assertions": {
+    "required": ["runtime/src"],
+    "forbidden": ["**/__pycache__/**", "**/*.py[cod]", "**/.env", "**/*.pem"]
+  },
+  "limits": {"maximumFileBytes": 52428800, "maximumArchiveBytes": 209715200}
 }

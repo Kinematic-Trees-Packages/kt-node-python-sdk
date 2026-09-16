@@ -1,5 +1,7 @@
 import ctypes
+import gc
 import unittest
+import weakref
 
 from ktnode import Capability, ClosedResourceError, NextStep, Node, UnsupportedCapabilityError, abi
 from ktnode.runtime import Context, KtError, RuntimeInfo, _check_status
@@ -76,6 +78,20 @@ class RuntimeContractTests(unittest.TestCase):
         runtime._runtime = ctypes.POINTER(abi.KtRuntime)()
         with self.assertRaises(ClosedResourceError):
             runtime.request_close()
+
+    def test_callback_owner_is_collectible_after_runtime_wrapper_release(self):
+        class Owner:
+            pass
+
+        owner = Owner()
+        owner_ref = weakref.ref(owner)
+        runtime = object.__new__(__import__("ktnode").Runtime)
+        runtime._node = owner
+        del owner
+        self.assertIsNotNone(owner_ref())
+        del runtime
+        gc.collect()
+        self.assertIsNone(owner_ref())
 
 
 if __name__ == "__main__":

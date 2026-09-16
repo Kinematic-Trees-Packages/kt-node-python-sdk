@@ -1,7 +1,8 @@
 import os
+import resource
 import tempfile
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 from ktnode.vision import decode_image_sample_summary, encode_image_sample, make_rgb_image, vision_sample_schema
 
@@ -39,6 +40,33 @@ class VisionContractTests(unittest.TestCase):
         self.assertEqual(summary["image_type"], summary["image_type_rgb"])
         self.assertEqual(summary["pipeline"], summary["pipeline_other"])
         self.assertEqual(summary["captured_unix_ns"], 123)
+
+    def test_empty_and_malformed_image_payloads_are_rejected(self):
+        for payload in (b"", b"VSM1", b"\x00" * 64):
+            with self.subTest(payload=payload), self.assertRaises(ValueError):
+                decode_image_sample_summary(payload)
+
+    def test_large_vision_round_trip_is_exact_and_memory_bounded(self):
+        width, height = 1920, 1080
+        pixels = bytes(range(256)) * ((width * height * 3 + 255) // 256)
+        pixels = pixels[: width * height * 3]
+        before = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        image = make_rgb_image(
+            pixels,
+            source="fixture/1080p",
+            frame_number=42,
+            width=width,
+            height=height,
+            captured_unix_ns=987_654_321,
+        )
+        payload = encode_image_sample(image)
+        summary = decode_image_sample_summary(payload)
+        after = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        self.assertEqual(summary["data_shape"], [height, width, 3])
+        self.assertEqual(summary["data_length"], len(pixels))
+        self.assertEqual(summary["data_prefix"], list(pixels[:12]))
+        self.assertEqual(summary["captured_unix_ns"], 987_654_321)
+        self.assertLessEqual(after - before, 96 * 1024)
 
     def test_make_rgb_image_rejects_incomplete_contract(self):
         with self.assertRaises(ValueError):

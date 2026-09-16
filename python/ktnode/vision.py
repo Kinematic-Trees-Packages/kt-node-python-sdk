@@ -16,7 +16,6 @@ from typing import Any
 
 import flatbuffers
 
-
 DEFAULT_CHANNELS = 3
 
 
@@ -140,25 +139,30 @@ def encode_image_sample(image: RGBImage) -> bytes:
 
 
 def decode_image_sample_summary(payload: bytes) -> dict[str, Any]:
-    """Decode core ImageSample fields used by conformance tests."""
+    """Decode core ImageSample fields, raising ValueError for malformed input."""
     ImageSample, CompressionFormat, ImageType, MediaPipeline = _generated_modules()
-    if not ImageSample.ImageSample.ImageSampleBufferHasIdentifier(payload, 0):
-        raise ValueError("payload is not a VSM1 ImageSample buffer")
-    sample = ImageSample.ImageSample.GetRootAs(payload, 0)
-    return {
-        "source": sample.Source().decode("utf-8") if sample.Source() else "",
-        "frame_number": sample.FrameNumber(),
-        "data_shape": [sample.DataShape(i) for i in range(sample.DataShapeLength())],
-        "data_prefix": [sample.Data(i) for i in range(min(sample.DataLength(), 12))],
-        "data_length": sample.DataLength(),
-        "compression": sample.Compression(),
-        "compression_raw": CompressionFormat.CompressionFormat.RAW,
-        "image_type": sample.ImageType(),
-        "image_type_rgb": ImageType.ImageType.RGB,
-        "pipeline": sample.Pipeline(),
-        "pipeline_other": MediaPipeline.MediaPipeline.OTHER,
-        "captured_unix_ns": sample.CapturedUnixNs(),
-    }
+    try:
+        if not ImageSample.ImageSample.ImageSampleBufferHasIdentifier(payload, 0):
+            raise ValueError("payload is not a VSM1 ImageSample buffer")
+        sample = ImageSample.ImageSample.GetRootAs(payload, 0)
+        return {
+            "source": sample.Source().decode("utf-8") if sample.Source() else "",
+            "frame_number": sample.FrameNumber(),
+            "data_shape": [sample.DataShape(i) for i in range(sample.DataShapeLength())],
+            "data_prefix": [sample.Data(i) for i in range(min(sample.DataLength(), 12))],
+            "data_length": sample.DataLength(),
+            "compression": sample.Compression(),
+            "compression_raw": CompressionFormat.CompressionFormat.RAW,
+            "image_type": sample.ImageType(),
+            "image_type_rgb": ImageType.ImageType.RGB,
+            "pipeline": sample.Pipeline(),
+            "pipeline_other": MediaPipeline.MediaPipeline.OTHER,
+            "captured_unix_ns": sample.CapturedUnixNs(),
+        }
+    except ValueError:
+        raise
+    except (IndexError, RuntimeError, TypeError, UnicodeDecodeError) as error:
+        raise ValueError("malformed VSM1 ImageSample buffer") from error
 
 
 def _generated_modules():

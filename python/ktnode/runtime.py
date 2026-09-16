@@ -48,6 +48,14 @@ class Capability(IntFlag):
     WEBRTC = abi.KT_CAPABILITY_WEBRTC
 
 
+class ReadMode(IntEnum):
+    """Read modes frozen by the ABI 1.2 contract."""
+
+    ONE = abi.KT_READ_ONE
+    ALL_AVAILABLE = abi.KT_READ_ALL_AVAILABLE
+    COUNT = abi.KT_READ_COUNT
+
+
 @dataclass(frozen=True)
 class RuntimeInfo:
     abi_major: int
@@ -166,10 +174,31 @@ class Context:
             raise UnsupportedCapabilityError("loaded ABI does not export kt_context_config_revision")
         return int(function(self._ptr))
 
-    def get(self, channel: str, mode: int = abi.KT_READ_ONE, count: int = 0) -> list[Message]:
+    def get(
+        self,
+        channel: str,
+        mode: ReadMode | int = ReadMode.ONE,
+        count: int = 0,
+    ) -> list[Message]:
         self._require_active()
+        try:
+            selected_mode = ReadMode(mode)
+        except ValueError as mode_error:
+            raise ValueError(f"unsupported read mode: {mode}") from mode_error
+        if selected_mode is ReadMode.COUNT:
+            if count <= 0:
+                raise ValueError("count must be positive for ReadMode.COUNT")
+        elif count != 0:
+            raise ValueError("count must be zero unless mode is ReadMode.COUNT")
         channel_view, channel_keepalive = abi.string_view(channel)
-        options = abi.KtReadOptionsV1(ctypes.sizeof(abi.KtReadOptionsV1), abi.KT_ABI_VERSION_MAJOR, mode, 0, count, (ctypes.c_uint64 * 4)())
+        options = abi.KtReadOptionsV1(
+            ctypes.sizeof(abi.KtReadOptionsV1),
+            abi.KT_ABI_VERSION_MAJOR,
+            int(selected_mode),
+            0,
+            count,
+            (ctypes.c_uint64 * 4)(),
+        )
         batch = ctypes.POINTER(abi.KtMessageBatch)()
         error = ctypes.POINTER(abi.KtError)()
         status = self._lib.kt_context_read(self._ptr, channel_view, ctypes.byref(options), ctypes.byref(batch), ctypes.byref(error))

@@ -31,10 +31,14 @@
   "files": [
     "boilerplate",
     "scripts/package.sh",
+    "scripts/docs.sh",
+    "scripts/validate_docs.py",
     "package.ktm.json",
     "python",
     "pyproject.toml",
+    "mkdocs.yml",
     "docs",
+    "examples",
     "tests",
     "share",
     "package-hygiene.txt"

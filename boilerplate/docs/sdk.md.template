@@ -4,9 +4,9 @@ This project was generated from the Kinematic Trees kt-node Python SDK boilerpla
 
 ## Project layout
 
-- `src/{{KTM_CREATE_MODULE_NAME}}/kt_node.py` — small `ctypes` loader for the KTM-managed `libkt_node` native runtime.
+- `src/{{KTM_CREATE_MODULE_NAME}}/kt_node.py` — project-facing aliases for the installed public `ktnode` SDK.
 - `src/{{KTM_CREATE_MODULE_NAME}}/robot.py` — project-facing `Robot` class. Start custom behavior here.
-- `examples/basic.py` — minimal example that constructs `Robot` and prints `Robot.status()`.
+- `examples/basic.py` — minimal example that constructs the generated `Robot` subclass.
 - `tests/test_smoke.py` — smoke test for the generated API and native runtime wiring.
 - `scripts/build.sh` — writes the intentional package payload under `$KTM_BUILD_OUTPUT/python`.
 - `ktm-pack.json` — editable package-owned pack mode definition.
@@ -27,10 +27,10 @@ In project code:
 from {{KTM_CREATE_MODULE_NAME}} import Robot
 
 robot = Robot()
-print(robot.status())
+print(type(robot).__name__)
 ```
 
-`Robot.status()` reports the loaded kt-node ABI version. If you are writing structural tests that should not require the native library, instantiate `Robot(native_required=False)`.
+Construct `ktnode.Runtime` with the generated package/runtime JSON when running the process. Importing and structurally testing `Robot` does not load the native library.
 
 ## Manual Python workflow
 

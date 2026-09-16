@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block announce %}
+  Python is the tested reference SDK. Other language examples remain preview-only until their conformance gates pass.
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const search = document.querySelector('[role="dialog"]');
+      if (search && !search.getAttribute("aria-label")) search.setAttribute("aria-label", "Search documentation");
+    });
+  </script>
+{% endblock %}

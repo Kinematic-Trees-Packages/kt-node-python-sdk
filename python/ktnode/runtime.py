@@ -28,6 +28,8 @@ class ClosedResourceError(KtError):
 
 
 class NextStep(IntEnum):
+    """Algorithm callback outcome returned to the native scheduler."""
+
     CONTINUE = abi.KT_ALGORITHM_CONTINUE
     STOP = abi.KT_ALGORITHM_STOP
     RECOVERABLE = abi.KT_ALGORITHM_RECOVERABLE
@@ -35,6 +37,8 @@ class NextStep(IntEnum):
 
 
 class ConfigUpdateResult(IntEnum):
+    """Decision returned from :meth:`Node.config_update`."""
+
     ACCEPT = abi.KT_CONFIG_UPDATE_ACCEPT
     REJECT_RECOVERABLE = abi.KT_CONFIG_UPDATE_REJECT_RECOVERABLE
     REJECT_FATAL = abi.KT_CONFIG_UPDATE_REJECT_FATAL
@@ -42,6 +46,8 @@ class ConfigUpdateResult(IntEnum):
 
 
 class Capability(IntFlag):
+    """Transport features compiled into the loaded native runtime."""
+
     HTTP = abi.KT_CAPABILITY_HTTP
     KT_LAN = abi.KT_CAPABILITY_KT_LAN
     KT_SHM = abi.KT_CAPABILITY_KT_SHM
@@ -58,6 +64,8 @@ class ReadMode(IntEnum):
 
 @dataclass(frozen=True)
 class RuntimeInfo:
+    """Version, capability, and constructor metadata for a loaded runtime."""
+
     abi_major: int
     abi_minor: int
     runtime_version: tuple[int, int, int]
@@ -68,6 +76,8 @@ class RuntimeInfo:
 
 @dataclass(frozen=True)
 class Message:
+    """One copied channel payload with optional transport metadata."""
+
     payload: bytes
     source_id: str | None = None
     remote_time_ns: int | None = None
@@ -75,6 +85,8 @@ class Message:
 
 @dataclass(frozen=True)
 class ConfigUpdate:
+    """Parsed V2 configuration-update event supplied to a node callback."""
+
     old_revision: int
     new_revision: int
     patch: Any
@@ -90,6 +102,8 @@ def _decode_json(view: abi.KtStringView) -> Any:
 
 
 class Context:
+    """Borrowed callback context valid only until the current callback returns."""
+
     def __init__(self, lib: ctypes.CDLL, ptr: ctypes.POINTER(abi.KtAlgorithmContext)) -> None:
         self._lib = lib
         self._ptr = ptr
@@ -104,22 +118,30 @@ class Context:
         self._ptr = ctypes.POINTER(abi.KtAlgorithmContext)()
 
     def is_closing(self) -> bool:
+        """Return whether cooperative shutdown has been requested."""
+
         self._require_active()
         out = ctypes.c_uint32(0)
         _check_status(self._lib, self._lib.kt_context_is_closing(self._ptr, ctypes.byref(out)))
         return bool(out.value)
 
     def request_close(self) -> None:
+        """Request cooperative runtime shutdown from the active callback."""
+
         self._require_active()
         _check_status(self._lib, self._lib.kt_context_request_close(self._ptr))
 
     def report_error(self, message: str) -> None:
+        """Attach a diagnostic message to the current callback outcome."""
+
         self._require_active()
         view, keepalive = abi.string_view(message)
         _check_status(self._lib, self._lib.kt_context_report_error(self._ptr, view))
         _ = keepalive
 
     def set(self, channel: str, payload: bytes | bytearray | memoryview) -> None:
+        """Copy a payload to a single-source output channel."""
+
         self._require_active()
         channel_view, channel_keepalive = abi.string_view(channel)
         payload_view, payload_keepalive = abi.bytes_view(payload)
@@ -129,6 +151,8 @@ class Context:
         _check_status(self._lib, status, error)
 
     def set_from(self, channel: str, source_id: str, payload: bytes | bytearray | memoryview) -> None:
+        """Copy a payload with an explicit source identifier to an output channel."""
+
         self._require_active()
         channel_view, channel_keepalive = abi.string_view(channel)
         source_view, source_keepalive = abi.string_view(source_id)
@@ -154,20 +178,30 @@ class Context:
             self._lib.kt_owned_bytes_destroy(ctypes.byref(output))
 
     def metrics_json(self) -> bytes:
+        """Return the runtime metrics document as owned JSON bytes."""
+
         return self._owned_bytes("kt_context_metrics_json")
 
     def metrics(self) -> dict[str, object]:
+        """Return the parsed runtime metrics document."""
+
         payload = self.metrics_json()
         return json.loads(payload.decode("utf-8")) if payload else {}
 
     def config_json(self) -> bytes:
+        """Return the current runtime configuration as owned JSON bytes."""
+
         return self._owned_bytes("kt_context_config_json")
 
     def config(self) -> Any:
+        """Return the parsed current runtime configuration."""
+
         payload = self.config_json()
         return json.loads(payload.decode("utf-8")) if payload else None
 
     def config_revision(self) -> int:
+        """Return the current runtime configuration revision."""
+
         self._require_active()
         function = getattr(self._lib, "kt_context_config_revision", None)
         if function is None:
@@ -180,6 +214,8 @@ class Context:
         mode: ReadMode | int = ReadMode.ONE,
         count: int = 0,
     ) -> list[Message]:
+        """Read copied messages from an input channel using the requested mode."""
+
         self._require_active()
         try:
             selected_mode = ReadMode(mode)
@@ -213,28 +249,48 @@ class Context:
                 item.struct_size = ctypes.sizeof(abi.KtMessageViewV1)
                 item.abi_version = abi.KT_ABI_VERSION_MAJOR
                 item_error = ctypes.POINTER(abi.KtError)()
-                _check_status(self._lib, self._lib.kt_message_batch_item(batch, index, ctypes.byref(item), ctypes.byref(item_error)), item_error)
-                messages.append(Message(abi.view_to_bytes(item.payload), abi.view_to_str(item.source_id) if item.has_source else None, int(item.remote_time_ns) if item.has_remote_time else None))
+                _check_status(
+                    self._lib, self._lib.kt_message_batch_item(batch, index, ctypes.byref(item), ctypes.byref(item_error)), item_error
+                )
+                messages.append(
+                    Message(
+                        abi.view_to_bytes(item.payload),
+                        abi.view_to_str(item.source_id) if item.has_source else None,
+                        int(item.remote_time_ns) if item.has_remote_time else None,
+                    )
+                )
             return messages
         finally:
             self._lib.kt_message_batch_destroy(ctypes.byref(batch))
 
 
 class Node:
+    """Base class for KT process lifecycle and configuration callbacks."""
+
     def setup(self, ctx: Context) -> NextStep:
+        """Initialize process state before stepping begins."""
+
         return NextStep.CONTINUE
 
     def step(self, ctx: Context) -> NextStep:
+        """Process one scheduled unit of work."""
+
         return NextStep.STOP
 
     def close(self, ctx: Context) -> NextStep:
+        """Release process-owned resources during terminal cleanup."""
+
         return NextStep.STOP
 
     def config_update(self, ctx: Context, update: ConfigUpdate) -> ConfigUpdateResult:
+        """Accept, reject, or stop for a V2 configuration update."""
+
         return ConfigUpdateResult.ACCEPT
 
 
 class Runtime:
+    """Owned high-level wrapper around one native KT runtime instance."""
+
     def __init__(self, package_path: str, runtime_path: str, node: Node, library_path: str | None = None) -> None:
         self._lib = abi.load_library(library_path)
         major = int(self._lib.kt_abi_version_major())
@@ -257,13 +313,44 @@ class Runtime:
         error = ctypes.POINTER(abi.KtError)()
         create_v2 = getattr(self._lib, "kt_runtime_create_v2", None)
         if minor >= 2 and create_v2 is not None:
-            self._callbacks = abi.KtAlgorithmCallbacksV2(ctypes.sizeof(abi.KtAlgorithmCallbacksV2), abi.KT_ABI_VERSION_MAJOR, self._setup_cb, self._step_cb, self._close_cb, self._config_cb, (ctypes.c_uint64 * 4)())
-            options = abi.KtRuntimeOptionsV2(ctypes.sizeof(abi.KtRuntimeOptionsV2), abi.KT_ABI_VERSION_MAJOR, package_view, runtime_view, ctypes.pointer(self._callbacks), self._user_data_ptr, (ctypes.c_uint64 * 4)())
+            self._callbacks = abi.KtAlgorithmCallbacksV2(
+                ctypes.sizeof(abi.KtAlgorithmCallbacksV2),
+                abi.KT_ABI_VERSION_MAJOR,
+                self._setup_cb,
+                self._step_cb,
+                self._close_cb,
+                self._config_cb,
+                (ctypes.c_uint64 * 4)(),
+            )
+            options = abi.KtRuntimeOptionsV2(
+                ctypes.sizeof(abi.KtRuntimeOptionsV2),
+                abi.KT_ABI_VERSION_MAJOR,
+                package_view,
+                runtime_view,
+                ctypes.pointer(self._callbacks),
+                self._user_data_ptr,
+                (ctypes.c_uint64 * 4)(),
+            )
             status = create_v2(ctypes.byref(options), ctypes.byref(self._runtime), ctypes.byref(error))
             creation_api = 2
         else:
-            self._callbacks = abi.KtAlgorithmCallbacksV1(ctypes.sizeof(abi.KtAlgorithmCallbacksV1), abi.KT_ABI_VERSION_MAJOR, self._setup_cb, self._step_cb, self._close_cb, (ctypes.c_uint64 * 4)())
-            options_v1 = abi.KtRuntimeOptionsV1(ctypes.sizeof(abi.KtRuntimeOptionsV1), abi.KT_ABI_VERSION_MAJOR, package_view, runtime_view, ctypes.pointer(self._callbacks), self._user_data_ptr, (ctypes.c_uint64 * 4)())
+            self._callbacks = abi.KtAlgorithmCallbacksV1(
+                ctypes.sizeof(abi.KtAlgorithmCallbacksV1),
+                abi.KT_ABI_VERSION_MAJOR,
+                self._setup_cb,
+                self._step_cb,
+                self._close_cb,
+                (ctypes.c_uint64 * 4)(),
+            )
+            options_v1 = abi.KtRuntimeOptionsV1(
+                ctypes.sizeof(abi.KtRuntimeOptionsV1),
+                abi.KT_ABI_VERSION_MAJOR,
+                package_view,
+                runtime_view,
+                ctypes.pointer(self._callbacks),
+                self._user_data_ptr,
+                (ctypes.c_uint64 * 4)(),
+            )
             status = self._lib.kt_runtime_create_v1(ctypes.byref(options_v1), ctypes.byref(self._runtime), ctypes.byref(error))
             creation_api = 1
         _check_status(self._lib, status, error)
@@ -274,20 +361,28 @@ class Runtime:
             raise ClosedResourceError("runtime is closed")
 
     def require_capability(self, capability: Capability) -> None:
+        """Raise when the loaded runtime lacks a required capability."""
+
         self._require_open()
         if capability & self.info.capabilities != capability:
             raise UnsupportedCapabilityError(f"runtime does not support {capability.name or int(capability)}")
 
     def run(self) -> None:
+        """Run the scheduler synchronously until termination."""
+
         self._require_open()
         error = ctypes.POINTER(abi.KtError)()
         _check_status(self._lib, self._lib.kt_runtime_run(self._runtime, ctypes.byref(error)), error)
 
     def request_close(self) -> None:
+        """Request cooperative shutdown from outside a callback."""
+
         self._require_open()
         _check_status(self._lib, self._lib.kt_runtime_request_close(self._runtime))
 
     def close(self) -> None:
+        """Destroy the native runtime; repeated calls are safe."""
+
         if self._closed:
             return
         if self._runtime:
@@ -299,6 +394,8 @@ class Runtime:
 
     @property
     def closed(self) -> bool:
+        """Return whether the native runtime has been destroyed."""
+
         return self._closed
 
     def __enter__(self) -> "Runtime":
@@ -332,10 +429,19 @@ def _runtime_info(lib: ctypes.CDLL, major: int, minor: int, creation_api: int) -
     capabilities.struct_size = ctypes.sizeof(abi.KtCapabilitiesV1)
     capabilities.abi_version = abi.KT_ABI_VERSION_MAJOR
     _check_status(lib, lib.kt_runtime_capabilities_v1(ctypes.byref(capabilities)))
-    return RuntimeInfo(major, minor, (version.major, version.minor, version.patch), abi.view_to_str(lib.kt_runtime_build_id()), Capability(capabilities.bits), creation_api)
+    return RuntimeInfo(
+        major,
+        minor,
+        (version.major, version.minor, version.patch),
+        abi.view_to_str(lib.kt_runtime_build_id()),
+        Capability(capabilities.bits),
+        creation_api,
+    )
 
 
 def run(package_path: str, runtime_path: str, node: Node, library_path: str | None = None) -> None:
+    """Create, run, and destroy one runtime instance."""
+
     with Runtime(package_path, runtime_path, node, library_path=library_path) as runtime:
         runtime.run()
 
@@ -356,11 +462,21 @@ def _close_trampoline(user_data: ctypes.c_void_p, ctx: ctypes.POINTER(abi.KtAlgo
     return _runtime_from_user_data(user_data)._invoke("close", ctx)
 
 
-def _config_update_trampoline(user_data: ctypes.c_void_p, ctx: ctypes.POINTER(abi.KtAlgorithmContext), raw: ctypes.POINTER(abi.KtConfigUpdateV1)) -> int:
+def _config_update_trampoline(
+    user_data: ctypes.c_void_p, ctx: ctypes.POINTER(abi.KtAlgorithmContext), raw: ctypes.POINTER(abi.KtConfigUpdateV1)
+) -> int:
     if not raw:
         return int(ConfigUpdateResult.REJECT_FATAL)
     value = raw.contents
-    update = ConfigUpdate(int(value.old_revision), int(value.new_revision), _decode_json(value.patch_json), _decode_json(value.old_config_json), _decode_json(value.new_config_json), _decode_json(value.changed_paths_json), int(value.flags))
+    update = ConfigUpdate(
+        int(value.old_revision),
+        int(value.new_revision),
+        _decode_json(value.patch_json),
+        _decode_json(value.old_config_json),
+        _decode_json(value.new_config_json),
+        _decode_json(value.changed_paths_json),
+        int(value.flags),
+    )
     return _runtime_from_user_data(user_data)._invoke("config_update", ctx, update)
 
 

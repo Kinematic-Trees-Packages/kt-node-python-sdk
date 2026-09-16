@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Kinematic Trees</title>
+  <rect width="64" height="64" rx="12" fill="#10151c"/>
+  <path d="M14 48V16h8v12l16-12h12L31 31l20 17H39L22 34v14z" fill="#4dd6d0"/>
+</svg>

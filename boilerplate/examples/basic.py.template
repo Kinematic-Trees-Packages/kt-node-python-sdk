@@ -2,8 +2,8 @@ from {{KTM_CREATE_MODULE_NAME}} import Robot
 
 
 def main() -> None:
-    robot = Robot(native_required=True)
-    print(robot.status())
+    robot = Robot()
+    print(f"created {type(robot).__name__}; run it with package/runtime JSON through KTM")
 
 
 if __name__ == "__main__":

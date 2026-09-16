@@ -47,6 +47,6 @@ python3 -m py_compile src/{{KTM_CREATE_MODULE_NAME}}/*.py examples/basic.py test
 PYTHONPATH=src python3 examples/basic.py
 PYTHONPATH=src python3 -m pytest -q tests || PYTHONPATH=src python3 - <<'PY'
 from {{KTM_CREATE_MODULE_NAME}} import Robot
-print(Robot(native_required=True).status())
+print(type(Robot()).__name__)
 PY
 echo "Python kt-node smoke passed"

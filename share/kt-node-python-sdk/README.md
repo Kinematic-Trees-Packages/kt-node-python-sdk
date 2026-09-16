@@ -1,16 +1,17 @@
-# ktnode Python SDK
+# KT Node Python SDK
 
-High-level Python wrapper over `libkt_node`.
-
-Planned public API:
+Tested Python wrapper for the frozen KT Node C ABI. The public API is provided by `ktnode`; raw `ctypes` bindings are internal implementation detail.
 
 ```python
-from ktnode import Context, Node, NextStep, run
+from ktnode import Context, Node, NextStep
 
-class VideoNode(Node):
+class EchoNode(Node):
     def step(self, ctx: Context) -> NextStep:
-        ctx.set("video", b"...")
+        messages = ctx.get("in")
+        if not messages:
+            return NextStep.RECOVERABLE
+        ctx.set("out", messages[0].payload)
         return NextStep.CONTINUE
-
-run(package_path, runtime_path, VideoNode())
 ```
+
+Build the versioned HTML documentation with `scripts/docs.sh`. The site covers installation, lifecycle, channels, data models, HTTP and KT SHM transports, packaging, deployment, API reference, compatibility, and troubleshooting.

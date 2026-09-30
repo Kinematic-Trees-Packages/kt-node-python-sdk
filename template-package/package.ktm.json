@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "3",
+  "metadata": {
+    "namespace": "kinematictrees",
+    "name": "kt-node-python-template",
+    "version": "0.1.0",
+    "description": "KTM project template for Python processes using the KT Node Python SDK.",
+    "author": "Kinematic Trees Package Team",
+    "language": "python",
+    "license": "MIT",
+    "packageType": "local"
+  },
+  "files": ["boilerplate", "scripts/package.sh", "package.ktm.json"],
+  "distribution": {"packages": [], "urlStrategy": "local-relative"},
+  "runEnvironments": [
+    {
+      "name": "linux_20",
+      "type": "native",
+      "os": "linux",
+      "arch": "x64",
+      "hostRequirements": {"libc": {"implementation": "glibc", "minimumVersion": "2.29"}},
+      "recipes": [
+        {"action": "build", "command": {"program": "scripts/package.sh", "args": []}, "timeoutSeconds": 300}
+      ]
+    }
+  ],
+  "runtime": {"sdk": "python"},
+  "dependencies": {
+    "system": [],
+    "packages": [
+      {
+        "owner": "kinematictrees",
+        "name": "kt-node-python-sdk",
+        "version": "0.2.0",
+        "classification": "library",
+        "environments": {"linux_20": "linux_20"}
+      }
+    ],
+    "optional": []
+  },
+  "resources": {"gpu": false, "ports": [], "x11": false},
+  "dataflow": {"inputs": [], "outputs": []},
+  "config": {"type": "object", "properties": {}, "required": []}
+}

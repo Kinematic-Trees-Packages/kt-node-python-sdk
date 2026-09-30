@@ -1,0 +1,63 @@
+# Python packing checklist for {{KTM_CREATE_PROJECT_NAME}}
+
+Use this checklist before changing `ktm-pack.json`, `scripts/build.sh`, or package modes for this Python SDK project.
+
+## Mode checklist
+
+### `compiled`
+
+- [ ] `scripts/build.sh` writes the runtime tree to `$KTM_BUILD_OUTPUT/python`.
+- [ ] The `compiled` list includes `python`.
+- [ ] Python bytecode/cache directories such as `__pycache__/` and `.pytest_cache/` are absent from the archive.
+- [ ] The archive contains `python/src/{{KTM_CREATE_MODULE_NAME}}/kt_node.py` and `python/src/{{KTM_CREATE_MODULE_NAME}}/robot.py`.
+- [ ] The archive does not contain `docs/` by default.
+
+Run:
+
+```bash
+ktm pack --platform {{KTM_CREATE_PRIMARY_PLATFORM}} --mode compiled
+```
+
+### `compiled-source`
+
+- [ ] The `compiled-source` mode composes `compiled` and `source` lists.
+- [ ] The default `source` list may be empty because Python source is the runtime artifact already present in `python/`.
+- [ ] Repeating `python` in the `source` list is allowed but redundant; KTM deduplicates repeated paths before packaging.
+
+Run:
+
+```bash
+ktm pack --platform {{KTM_CREATE_PRIMARY_PLATFORM}} --mode compiled-source
+```
+## Shared package safety checklist
+
+- [ ] Confirm the requested mode is `compiled` or `compiled-source`.
+- [ ] Edit `ktm-pack.json` lists instead of hardcoding paths in KTM.
+- [ ] Keep lists composable and reviewable. Repeated paths are allowed, but KTM deduplicates them before packaging.
+- [ ] Keep `docs/` out of package payload unless Daniel explicitly asks to package docs.
+- [ ] Keep generated caches out of payload.
+- [ ] Ensure `scripts/build.sh` writes intentional payload roots to `$KTM_BUILD_OUTPUT`.
+- [ ] Validate with `ktm doctor`, `ktm dev`, `ktm test`, and both pack modes when changing packaging behavior.
+- [ ] Inspect the resulting archive when payload composition changes.
+- [ ] Verify kt-node stays KTM-managed in normal compiled modes; do not vendor dependency libraries into the package.
+
+## Dependency ownership / eject review
+
+The default pack modes keep `kinematic-trees/kt-node@{{KTM_CREATE_KT_NODE_VERSION}}` as a KTM-managed dependency. A normal compiled or compiled-source package must not copy KTM store paths, dependency shared libraries, headers, or metadata into the project payload.
+
+A future eject/self-contained flow should be explicit and separately reviewed because it changes who owns dependency updates, license notices, SBOM evidence, and security patching. Until that flow exists, `ktm pack --mode eject` is expected to fail rather than silently vendor dependencies.
+
+## Quick payload inspection
+
+After packing, inspect contents with:
+
+```bash
+tar -tzf _pack/*/{{KTM_CREATE_PRIMARY_PLATFORM}}/*.tar.gz | sort
+```
+
+Expected defaults:
+
+- `compiled`: only the `python/` runtime payload root.
+- `compiled-source`: the same `python/` runtime payload root by default; the separate `source` list is empty unless you intentionally add entries.
+- `docs/`: present in the generated project folder, absent from archives by default.
+- `deps/`, `.ktrees/`, KTM store paths, and kt-node dependency libraries: absent from normal pack archives.

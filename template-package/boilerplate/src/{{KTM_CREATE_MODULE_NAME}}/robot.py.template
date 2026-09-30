@@ -1,0 +1,13 @@
+from ktnode import Context, Node, NextStep, Runtime
+
+
+class Robot(Node):
+    """Project-facing node implementation. Add robot behavior here."""
+
+    def step(self, ctx: Context) -> NextStep:
+        return NextStep.STOP
+
+    @staticmethod
+    def status(runtime: Runtime) -> str:
+        info = runtime.info
+        return f"kt-node ABI {info.abi_major}.{info.abi_minor} loaded via V{info.creation_api}"

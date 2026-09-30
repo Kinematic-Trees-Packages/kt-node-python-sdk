@@ -29,8 +29,9 @@
     "urlStrategy": "local-relative"
   },
   "files": [
-    "boilerplate",
     "scripts/package.sh",
+    "scripts/build_wheel.py",
+    "scripts/test_wheel.py",
     "scripts/docs.sh",
     "scripts/validate_docs.py",
     "package.ktm.json",
@@ -45,13 +46,12 @@
   ],
   "metadata": {
     "author": "Kinematic Trees Package Team",
-    "description": "Kinematic Trees Python SDK boilerplate for projects that build against KTM-installed kt-node.",
+    "description": "Installable Kinematic Trees Python SDK wheel for projects that build against KTM-installed kt-node.",
     "homepage": "https://github.com/Kinematic-Trees-Packages/kt-node-python-sdk",
     "keywords": [
       "kinematic-trees",
       "robotics",
       "sdk",
-      "boilerplate",
       "kt-node",
       "python"
     ],
@@ -64,7 +64,7 @@
       }
     ],
     "name": "kt-node-python-sdk",
-    "namespace": "kinematic-trees",
+    "namespace": "kinematictrees",
     "packageType": "local",
     "repository": {
       "type": "git",
@@ -80,7 +80,7 @@
   "runEnvironments": [
     {
       "arch": "x64",
-      "description": "Kinematic Trees Python SDK boilerplate source package for Linux 18.",
+      "description": "Kinematic Trees Python SDK wheel package for Linux 18.",
       "hostRequirements": {
         "libc": {
           "implementation": "glibc",
@@ -89,6 +89,16 @@
       },
       "name": "linux_18",
       "os": "linux",
+      "runtimeExports": {
+        "pythonDistributions": [
+          {
+            "distribution": "kt-node-python-sdk",
+            "importName": "ktnode",
+            "wheelPath": "python-dist/kt_node_python_sdk-0.2.0-py3-none-any.whl",
+            "pythonVersion": "3.11"
+          }
+        ]
+      },
       "recipes": [
         {
           "action": "build",
@@ -103,7 +113,7 @@
     },
     {
       "arch": "x64",
-      "description": "Kinematic Trees Python SDK boilerplate source package for Linux 20.",
+      "description": "Kinematic Trees Python SDK wheel package for Linux 20.",
       "hostRequirements": {
         "libc": {
           "implementation": "glibc",
@@ -112,6 +122,16 @@
       },
       "name": "linux_20",
       "os": "linux",
+      "runtimeExports": {
+        "pythonDistributions": [
+          {
+            "distribution": "kt-node-python-sdk",
+            "importName": "ktnode",
+            "wheelPath": "python-dist/kt_node_python_sdk-0.2.0-py3-none-any.whl",
+            "pythonVersion": "3.11"
+          }
+        ]
+      },
       "recipes": [
         {
           "action": "build",

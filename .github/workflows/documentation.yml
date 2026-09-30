@@ -18,6 +18,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
+      - run: python scripts/test_runtime_packages.py
       - run: python scripts/test_wheel.py
 
   build:

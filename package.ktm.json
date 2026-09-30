@@ -90,12 +90,21 @@
       "name": "linux_18",
       "os": "linux",
       "runtimeExports": {
-        "pythonDistributions": [
+        "runtimePackages": [
           {
-            "distribution": "kt-node-python-sdk",
-            "importName": "ktnode",
-            "wheelPath": "python-dist/kt_node_python_sdk-0.2.0-py3-none-any.whl",
-            "pythonVersion": "3.11"
+            "ecosystem": "python",
+            "name": "kt-node-python-sdk",
+            "version": "0.2.0",
+            "artifact": {
+              "format": "wheel",
+              "path": "python-dist/kt_node_python_sdk-0.2.0-py3-none-any.whl"
+            },
+            "python": {
+              "importNames": [
+                "ktnode"
+              ],
+              "requiresPython": ">=3.9"
+            }
           }
         ]
       },
@@ -123,12 +132,21 @@
       "name": "linux_20",
       "os": "linux",
       "runtimeExports": {
-        "pythonDistributions": [
+        "runtimePackages": [
           {
-            "distribution": "kt-node-python-sdk",
-            "importName": "ktnode",
-            "wheelPath": "python-dist/kt_node_python_sdk-0.2.0-py3-none-any.whl",
-            "pythonVersion": "3.11"
+            "ecosystem": "python",
+            "name": "kt-node-python-sdk",
+            "version": "0.2.0",
+            "artifact": {
+              "format": "wheel",
+              "path": "python-dist/kt_node_python_sdk-0.2.0-py3-none-any.whl"
+            },
+            "python": {
+              "importNames": [
+                "ktnode"
+              ],
+              "requiresPython": ">=3.9"
+            }
           }
         ]
       },

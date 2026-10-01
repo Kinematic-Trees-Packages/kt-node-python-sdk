@@ -10,9 +10,9 @@ requires-python = ">=3.9"
 license = "LicenseRef-Proprietary"
 
 [project.optional-dependencies]
-vision = ["flatbuffers>=24.3.25", "numpy>=1.24"]
+vision = ["numpy>=1.24"]
 test = [
-  "flatbuffers>=24.3.25",
+  "flatbuffers==24.12.23",
   "mypy==1.18.2",
   "numpy>=1.24",
   "pytest==8.3.5",
@@ -44,10 +44,13 @@ packages = ["ktnode"]
 module = "ktnode.runtime"
 disable_error_code = ["valid-type", "assignment", "no-any-return"]
 
+[[tool.mypy.overrides]]
+module = "flatbuffers.*"
+ignore_missing_imports = true
+
 [tool.ruff]
 target-version = "py39"
 line-length = 140
-exclude = ["python/ktnode/generated"]
 
 [tool.ruff.lint]
 ignore = ["BLE001", "PYI034", "S110", "UP037"]

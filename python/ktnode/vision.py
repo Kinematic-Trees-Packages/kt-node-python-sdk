@@ -8,7 +8,6 @@ examples may generate their own sample arrays/bytes, then pass them here.
 from __future__ import annotations
 
 import os
-import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -113,7 +112,7 @@ def vision_sample_schema() -> Path:
 
 
 def encode_image_sample(image: RGBImage) -> bytes:
-    """Encode an RGB image contract object as bow.data.ImageSample FlatBuffer bytes."""
+    """Encode an RGB image contract object as a package-owned ImageSample."""
     ImageSample, CompressionFormat, ImageType, MediaPipeline = _generated_modules()
     builder = flatbuffers.Builder(max(1024, len(image.data) + 256))
     source = builder.CreateString(image.source)
@@ -165,11 +164,7 @@ def decode_image_sample_summary(payload: bytes) -> dict[str, Any]:
         raise ValueError("malformed VSM1 ImageSample buffer") from error
 
 
-def _generated_modules():
-    generated = Path(__file__).resolve().parent / "generated"
-    generated_text = str(generated)
-    if generated_text not in sys.path:
-        sys.path.insert(0, generated_text)
-    from bow.data import CompressionFormat, ImageSample, ImageType, MediaPipeline
+def _generated_modules() -> tuple[Any, Any, Any, Any]:
+    from kt.messages.vision_sample import CompressionFormat, ImageSample, ImageType, MediaPipeline
 
     return ImageSample, CompressionFormat, ImageType, MediaPipeline

@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 
 
 SCRIPT = pathlib.Path(__file__).with_name("build_wheel.py")
@@ -24,6 +25,10 @@ class WheelTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             temporary = pathlib.Path(directory)
             wheel = BUILD_WHEEL.build_wheel(root, temporary / "wheelhouse")
+            with zipfile.ZipFile(wheel) as archive:
+                names = archive.namelist()
+            self.assertIn("ktnode/vision.py", names)
+            self.assertFalse(any(name.startswith("ktnode/generated/") for name in names))
             environment = temporary / "venv"
             subprocess.run([sys.executable, "-m", "venv", str(environment)], check=True)
             python = environment / "bin" / "python"

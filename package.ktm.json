@@ -20,6 +20,16 @@
         "name": "kt-node",
         "owner": "kinematic-trees",
         "version": "0.1.1"
+      },
+      {
+        "classification": "data_types",
+        "environments": {
+          "linux_18": "linux_18",
+          "linux_20": "linux_20"
+        },
+        "name": "kt-messages",
+        "owner": "kinematictrees",
+        "version": "0.1.0"
       }
     ],
     "system": []

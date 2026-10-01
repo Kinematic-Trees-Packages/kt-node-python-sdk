@@ -12,6 +12,8 @@ The C ABI transports opaque bytes. `Context.get`, `set`, and `set_from` preserve
 | `kt/vision/image_sample` RGB data | Typed helper available |
 | Other semantic models | No typed Python helper yet |
 
-Typed vision uses the checked-in `VSM1` FlatBuffer binding. Invalid identifiers raise `ValueError`. The SDK makes no compatibility claim for untested schema versions.
+Typed vision imports the `kt.messages.vision_sample` binding from the separately
+versioned `kinematictrees/kt-messages` `data_types` package. Invalid identifiers
+raise `ValueError`; the SDK does not own or duplicate generated datatype code.
 
 See the [compatibility matrix](../compatibility.md) for explicit exclusions.

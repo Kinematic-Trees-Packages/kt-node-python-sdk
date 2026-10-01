@@ -37,6 +37,23 @@ class RuntimePackageContractTests(unittest.TestCase):
         for environment in manifest["runEnvironments"]:
             self.assertNotIn("pythonDistributions", environment["runtimeExports"])
 
+    def test_datatypes_are_a_direct_package_dependency(self) -> None:
+        manifest = json.loads((ROOT / "package.ktm.json").read_text())
+        dependencies = manifest["dependencies"]["packages"]
+        messages = [item for item in dependencies if item["name"] == "kt-messages"]
+        self.assertEqual(
+            messages,
+            [
+                {
+                    "classification": "data_types",
+                    "environments": {"linux_18": "linux_18", "linux_20": "linux_20"},
+                    "name": "kt-messages",
+                    "owner": "kinematictrees",
+                    "version": "0.1.0",
+                }
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

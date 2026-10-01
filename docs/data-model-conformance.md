@@ -41,10 +41,11 @@ encoding/decoding; the SDK must not guess their schema.
 
 ## Schema compatibility
 
-The typed vision helper supports the checked-in `VSM1` file-identifier format
-generated from the package's `bow.data.ImageSample` bindings. It rejects
-payloads without that identifier. No old/new semantic schema pair is promised
-for the first release, so no compatibility conversion is claimed.
+The typed vision helper supports the `VSM1` file-identifier format imported
+from `kinematictrees/kt-messages@0.1.0` as
+`kt.messages.vision_sample.ImageSample`. It rejects payloads without that
+identifier. Generated bindings are owned only by `kt_messages`; the SDK does
+not carry a compatibility copy.
 
 Opaque payload forwarding is byte-for-byte and schema-agnostic. Compatibility
 of those payloads remains a contract between the producer, consumer, and their

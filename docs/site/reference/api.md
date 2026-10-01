@@ -8,7 +8,9 @@ The reference below is generated from public source and docstrings. Private `cty
 
 ## Vision helper
 
-Install optional dependencies with `pip install 'kt-node-python-sdk[vision]'`.
+KTM installs the direct `kinematictrees/kt-messages@0.1.0` `data_types`
+dependency alongside the SDK. The optional `vision` extra adds NumPy support;
+it does not bundle or generate datatype bindings.
 
 ::: ktnode.vision
     options:

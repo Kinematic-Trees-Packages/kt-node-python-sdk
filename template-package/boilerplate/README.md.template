@@ -30,7 +30,18 @@ src/{{KTM_CREATE_MODULE_NAME}}/robot.py
 
 ## Dependency model
 
-The generated `package.ktm.json` declares a dependency on `kinematic-trees/kt-node@{{KTM_CREATE_KT_NODE_VERSION}}`.
+The generated `package.ktm.json` declares the Python SDK and
+`kinematictrees/kt-messages@0.1.0`. The SDK resolves the native
+`kinematic-trees/kt-node@{{KTM_CREATE_KT_NODE_VERSION}}` runtime transitively.
+
+The starter imports every collision-free datatype namespace:
+
+```python
+from kt.messages import *
+```
+
+Use the schema namespace to select a generated type, for example
+`vision_sample.ImageSample`, so common names such as `Vector3` cannot collide.
 
 You normally do **not** need to export `CPATH`, `LIBRARY_PATH`, `LD_LIBRARY_PATH`, `PKG_CONFIG_PATH`, or `CMAKE_PREFIX_PATH` yourself. KTM supplies those when you use `ktm dev`, `ktm build`, and `ktm test`.
 

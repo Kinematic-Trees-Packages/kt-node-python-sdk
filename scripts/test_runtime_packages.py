@@ -65,6 +65,22 @@ class RuntimePackageContractTests(unittest.TestCase):
                 )
                 self.assertTrue(messages[0]["environments"])
 
+    def test_generated_starters_import_all_datatype_namespaces(self) -> None:
+        paths = [
+            ROOT / "boilerplate" / "src" / "{{KTM_CREATE_MODULE_NAME}}" / "robot.py.template",
+            ROOT
+            / "template-package"
+            / "boilerplate"
+            / "src"
+            / "{{KTM_CREATE_MODULE_NAME}}"
+            / "robot.py.template",
+        ]
+        for path in paths:
+            with self.subTest(path=path.relative_to(ROOT)):
+                source = path.read_text(encoding="utf-8")
+                self.assertIn("from kt.messages import *", source)
+                compile(source, str(path), "exec")
+
 
 if __name__ == "__main__":
     unittest.main()

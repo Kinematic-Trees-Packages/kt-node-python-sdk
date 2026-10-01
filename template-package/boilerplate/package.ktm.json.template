@@ -20,14 +20,14 @@
     "system": [],
     "packages": [
       {
-        "owner": "kinematictrees",
+        "owner": "kinematic-trees",
         "name": "kt-node-python-sdk",
         "version": "0.2.0",
         "classification": "library",
         "environments": {"linux_18": "linux_18", "linux_20": "linux_20"}
       },
       {
-        "owner": "kinematictrees",
+        "owner": "kinematic-trees",
         "name": "kt-messages",
         "version": "0.1.0",
         "classification": "data_types",

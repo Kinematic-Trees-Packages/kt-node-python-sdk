@@ -13,7 +13,7 @@ The C ABI transports opaque bytes. `Context.get`, `set`, and `set_from` preserve
 | Other semantic models | No typed Python helper yet |
 
 Typed vision imports the `kt.messages.vision_sample` binding from the separately
-versioned `kinematictrees/kt-messages` `data_types` package. Invalid identifiers
+versioned `kinematic-trees/kt-messages` `data_types` package. Invalid identifiers
 raise `ValueError`; the SDK does not own or duplicate generated datatype code.
 
 `from kt.messages import *` imports all 26 schema namespaces. Generated types

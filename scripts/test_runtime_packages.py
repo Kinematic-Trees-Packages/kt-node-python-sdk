@@ -57,7 +57,7 @@ class RuntimePackageContractTests(unittest.TestCase):
                 self.assertEqual(
                     {key: messages[0][key] for key in ("owner", "name", "version", "classification")},
                     {
-                        "owner": "kinematictrees",
+                        "owner": "kinematic-trees",
                         "name": "kt-messages",
                         "version": "0.1.0",
                         "classification": "data_types",

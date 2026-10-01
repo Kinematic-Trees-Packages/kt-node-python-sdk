@@ -27,7 +27,7 @@
         "environments": {"linux_18": "linux_18", "linux_20": "linux_20"}
       },
       {
-        "owner": "kinematictrees",
+        "owner": "kinematic-trees",
         "name": "kt-messages",
         "version": "0.1.0",
         "classification": "data_types",

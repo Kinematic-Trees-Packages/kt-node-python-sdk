@@ -42,7 +42,7 @@ encoding/decoding; the SDK must not guess their schema.
 ## Schema compatibility
 
 The typed vision helper supports the `VSM1` file-identifier format imported
-from `kinematictrees/kt-messages@0.1.0` as
+from `kinematic-trees/kt-messages@0.1.0` as
 `kt.messages.vision_sample.ImageSample`. It rejects payloads without that
 identifier. Generated bindings are owned only by `kt_messages`; the SDK does
 not carry a compatibility copy.

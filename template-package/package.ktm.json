@@ -1,7 +1,7 @@
 {
   "schemaVersion": "3",
   "metadata": {
-    "namespace": "kinematictrees",
+    "namespace": "kinematic-trees",
     "name": "kt-node-python-template",
     "version": "0.1.0",
     "description": "KTM project template for Python processes using the KT Node Python SDK.",
@@ -29,14 +29,14 @@
     "system": [],
     "packages": [
       {
-        "owner": "kinematictrees",
+        "owner": "kinematic-trees",
         "name": "kt-node-python-sdk",
         "version": "0.2.0",
         "classification": "library",
         "environments": {"linux_20": "linux_20"}
       },
       {
-        "owner": "kinematictrees",
+        "owner": "kinematic-trees",
         "name": "kt-messages",
         "version": "0.1.0",
         "classification": "data_types",

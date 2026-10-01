@@ -6,7 +6,7 @@ cd my-process
 ```
 
 The generated project declares direct KTM dependencies on the Python SDK and
-`kinematictrees/kt-messages`. KTM downloads and composes the SDK, all datatype
+`kinematic-trees/kt-messages`. KTM downloads and composes the SDK, all datatype
 bindings, the FlatBuffers runtime, and the native KT Node runtime.
 
 The starter makes every datatype namespace available without flattening

@@ -10,6 +10,11 @@ ROOT = pathlib.Path(__file__).parents[1]
 IMPORT_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$")
 
 
+def load_manifest(path: pathlib.Path) -> dict:
+    payload = path.read_text().replace("{{KTM_CREATE_RUN_ENVIRONMENTS_JSON}}", "[]")
+    return json.loads(payload)
+
+
 class RuntimePackageContractTests(unittest.TestCase):
     def test_all_environments_export_the_same_python_wheel(self) -> None:
         manifest = json.loads((ROOT / "package.ktm.json").read_text())
@@ -38,21 +43,27 @@ class RuntimePackageContractTests(unittest.TestCase):
             self.assertNotIn("pythonDistributions", environment["runtimeExports"])
 
     def test_datatypes_are_a_direct_package_dependency(self) -> None:
-        manifest = json.loads((ROOT / "package.ktm.json").read_text())
-        dependencies = manifest["dependencies"]["packages"]
-        messages = [item for item in dependencies if item["name"] == "kt-messages"]
-        self.assertEqual(
-            messages,
-            [
-                {
-                    "classification": "data_types",
-                    "environments": {"linux_18": "linux_18", "linux_20": "linux_20"},
-                    "name": "kt-messages",
-                    "owner": "kinematictrees",
-                    "version": "0.1.0",
-                }
-            ],
-        )
+        paths = [
+            ROOT / "package.ktm.json",
+            ROOT / "boilerplate" / "package.ktm.json.template",
+            ROOT / "template-package" / "package.ktm.json",
+            ROOT / "template-package" / "boilerplate" / "package.ktm.json.template",
+        ]
+        for path in paths:
+            with self.subTest(path=path.relative_to(ROOT)):
+                dependencies = load_manifest(path)["dependencies"]["packages"]
+                messages = [item for item in dependencies if item["name"] == "kt-messages"]
+                self.assertEqual(len(messages), 1)
+                self.assertEqual(
+                    {key: messages[0][key] for key in ("owner", "name", "version", "classification")},
+                    {
+                        "owner": "kinematictrees",
+                        "name": "kt-messages",
+                        "version": "0.1.0",
+                        "classification": "data_types",
+                    },
+                )
+                self.assertTrue(messages[0]["environments"])
 
 
 if __name__ == "__main__":

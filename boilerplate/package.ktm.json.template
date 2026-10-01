@@ -25,6 +25,13 @@
         "version": "{{KTM_CREATE_KT_NODE_VERSION}}",
         "classification": "library",
         "environments": {"linux_18": "linux_18", "linux_20": "linux_20"}
+      },
+      {
+        "owner": "kinematictrees",
+        "name": "kt-messages",
+        "version": "0.1.0",
+        "classification": "data_types",
+        "environments": {"linux_18": "linux_18", "linux_20": "linux_20"}
       }
     ],
     "optional": []

@@ -9,8 +9,10 @@
     "PROJECT_NAME",
     "PACKAGE_NAME",
     "NAMESPACE",
-    "DESCRIPTION",
-    "AUTHOR",
+    "DESCRIPTION_JSON_STRING",
+    "AUTHOR_JSON_STRING",
+    "DESCRIPTION_TOML_STRING",
+    "AUTHOR_TOML_STRING",
     "LANGUAGE",
     "RUNTIME_SDK",
     "PRIMARY_PLATFORM",
@@ -19,6 +21,10 @@
     "KT_NODE_VERSION",
     "MODULE_NAME"
   ],
+  "literalContexts": {
+    "package.ktm.json.template": "json",
+    "pyproject.toml.template": "toml"
+  },
   "copy": {
     "include": [
       "**/*"

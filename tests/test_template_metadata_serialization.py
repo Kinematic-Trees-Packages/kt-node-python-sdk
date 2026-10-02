@@ -1,0 +1,118 @@
+from __future__ import annotations
+
+import json
+import pathlib
+import tomllib
+import unittest
+
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+BOILERPLATES = (
+    ROOT / "boilerplate",
+    ROOT / "template-package" / "boilerplate",
+)
+RAW_STRUCTURED_TOKENS = (
+    "{{KTM_CREATE_DESCRIPTION}}",
+    "{{KTM_CREATE_AUTHOR}}",
+)
+TYPED_TOKENS = {
+    "DESCRIPTION_JSON_STRING",
+    "AUTHOR_JSON_STRING",
+    "DESCRIPTION_TOML_STRING",
+    "AUTHOR_TOML_STRING",
+}
+
+
+def render_template(source: str, values: dict[str, str]) -> str:
+    for name, value in values.items():
+        source = source.replace(f"{{{{KTM_CREATE_{name}}}}}", value)
+    return source
+
+
+class TemplateMetadataSerializationTests(unittest.TestCase):
+    def test_structured_templates_declare_and_use_typed_literals(self) -> None:
+        for root in BOILERPLATES:
+            with self.subTest(root=root):
+                metadata = json.loads((root / "ktm-template.json").read_text())
+                placeholders = set(metadata["placeholders"])
+                self.assertTrue(TYPED_TOKENS <= placeholders)
+                self.assertNotIn("DESCRIPTION", placeholders)
+                self.assertNotIn("AUTHOR", placeholders)
+                self.assertEqual(
+                    metadata["literalContexts"],
+                    {
+                        "package.ktm.json.template": "json",
+                        "pyproject.toml.template": "toml",
+                    },
+                )
+
+                manifest_source = (root / "package.ktm.json.template").read_text()
+                pyproject_source = (root / "pyproject.toml.template").read_text()
+                for token in RAW_STRUCTURED_TOKENS:
+                    self.assertNotIn(token, manifest_source)
+                    self.assertNotIn(token, pyproject_source)
+                self.assertIn("{{KTM_CREATE_DESCRIPTION_JSON_STRING}}", manifest_source)
+                self.assertIn("{{KTM_CREATE_AUTHOR_JSON_STRING}}", manifest_source)
+                self.assertIn("{{KTM_CREATE_DESCRIPTION_TOML_STRING}}", pyproject_source)
+                self.assertIn("{{KTM_CREATE_AUTHOR_TOML_STRING}}", pyproject_source)
+
+    def test_special_metadata_round_trips_through_json_and_toml(self) -> None:
+        description = 'Robot "alpha" path C:\\robots\nTabbed\tUnicode 温度'
+        author = 'Ada \\ Lovelace "team" 温度'
+        values = {
+            "PACKAGE_NAME": "demo-robot",
+            "NAMESPACE": "demo-owner",
+            "DESCRIPTION_JSON_STRING": json.dumps(description, ensure_ascii=False),
+            "AUTHOR_JSON_STRING": json.dumps(author, ensure_ascii=False),
+            "DESCRIPTION_TOML_STRING": json.dumps(description, ensure_ascii=False),
+            "AUTHOR_TOML_STRING": json.dumps(author, ensure_ascii=False),
+            "LANGUAGE": "python",
+            "RUN_ENVIRONMENTS_JSON": "[]",
+            "RUNTIME_SDK": "python",
+        }
+        for root in BOILERPLATES:
+            with self.subTest(root=root):
+                manifest = json.loads(
+                    render_template(
+                        (root / "package.ktm.json.template").read_text(), values
+                    )
+                )
+                pyproject = tomllib.loads(
+                    render_template(
+                        (root / "pyproject.toml.template").read_text(), values
+                    )
+                )
+                self.assertEqual(manifest["metadata"]["description"], description)
+                self.assertEqual(manifest["metadata"]["author"], author)
+                self.assertEqual(pyproject["project"]["description"], description)
+                self.assertEqual(pyproject["project"]["authors"], [{"name": author}])
+
+    def test_published_and_legacy_structured_contracts_match(self) -> None:
+        legacy, published = BOILERPLATES
+        legacy_metadata = json.loads((legacy / "ktm-template.json").read_text())
+        published_metadata = json.loads((published / "ktm-template.json").read_text())
+        self.assertEqual(
+            legacy_metadata["literalContexts"], published_metadata["literalContexts"]
+        )
+        self.assertEqual(
+            set(legacy_metadata["placeholders"]),
+            set(published_metadata["placeholders"]),
+        )
+
+        for relative in ("package.ktm.json.template", "pyproject.toml.template"):
+            legacy_lines = {
+                line.strip()
+                for line in (legacy / relative).read_text().splitlines()
+                if "DESCRIPTION_" in line or "AUTHOR_" in line
+            }
+            published_lines = {
+                line.strip()
+                for line in (published / relative).read_text().splitlines()
+                if "DESCRIPTION_" in line or "AUTHOR_" in line
+            }
+            with self.subTest(relative=relative):
+                self.assertEqual(legacy_lines, published_lines)
+
+
+if __name__ == "__main__":
+    unittest.main()

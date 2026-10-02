@@ -12,6 +12,10 @@ IMPORT_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$
 
 def load_manifest(path: pathlib.Path) -> dict:
     payload = path.read_text().replace("{{KTM_CREATE_RUN_ENVIRONMENTS_JSON}}", "[]")
+    payload = payload.replace(
+        "{{KTM_CREATE_DESCRIPTION_JSON_STRING}}", json.dumps("description")
+    )
+    payload = payload.replace("{{KTM_CREATE_AUTHOR_JSON_STRING}}", json.dumps("author"))
     return json.loads(payload)
 
 

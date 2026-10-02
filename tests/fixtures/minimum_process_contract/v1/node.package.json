@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "4",
+  "metadata": {"name": "python-minimum-contract"},
+  "dataflow": {
+    "inputs": [{"name": "value", "datatype": "kt/common/int64_value", "description": "Required dimensionless signed 64-bit count", "required": true}],
+    "outputs": [{"name": "incremented", "datatype": "kt/common/int64_value", "description": "Dimensionless signed 64-bit result"}]
+  },
+  "config": {
+    "type": "object",
+    "properties": {"increment": {"type": "integer", "default": 1, "description": "Dimensionless amount added to each input value"}},
+    "required": ["increment"]
+  }
+}
+

@@ -87,7 +87,9 @@ nav:
       - Minimal process: examples/minimal-process.md
       - HTTP relay: examples/http-relay.md
       - Summer reference package: examples/summer.md
-  - API reference: reference/api.md
+  - Reference:
+      - API: reference/api.md
+      - Minimum process contract: reference/minimum-process-contract.md
   - Compatibility: compatibility.md
   - Troubleshooting: troubleshooting.md
   - Release notes: release-notes.md

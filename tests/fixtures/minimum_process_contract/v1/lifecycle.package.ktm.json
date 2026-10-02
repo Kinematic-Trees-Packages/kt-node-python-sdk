@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "3",
+  "metadata": {
+    "name": "python-minimum-contract",
+    "namespace": "kinematic-trees",
+    "version": "0.1.0",
+    "description": "Versioned minimum typed Python process contract fixture.",
+    "author": "Kinematic Trees",
+    "language": "python",
+    "license": "MIT",
+    "packageType": "local"
+  },
+  "files": ["runtime", "src", "package.ktm.json"],
+  "distribution": {"packages": []},
+  "runEnvironments": [{
+    "name": "linux_20",
+    "type": "native",
+    "os": "linux",
+    "arch": "x64",
+    "recipes": [{
+      "action": "run",
+      "command": {
+        "program": "python3",
+        "args": ["-m", "minimum_contract", "--package", "runtime/node.package.json", "--runtime", "runtime/runtime.json"]
+      },
+      "timeoutSeconds": 600
+    }]
+  }],
+  "runtime": {"sdk": "python"},
+  "dependencies": {
+    "system": [],
+    "packages": [
+      {"owner": "kinematic-trees", "name": "kt-node-python-sdk", "version": "0.2.0", "classification": "library", "environments": {"linux_20": "linux_20"}},
+      {"owner": "kinematic-trees", "name": "kt-messages", "version": "0.1.0", "classification": "data_types", "environments": {"linux_20": "linux_20"}}
+    ],
+    "optional": []
+  },
+  "resources": {"gpu": false, "ports": [], "x11": false},
+  "config": {"type": "object", "properties": {}, "required": []}
+}
+

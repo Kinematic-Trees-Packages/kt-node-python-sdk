@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "4",
+  "id": "python-minimum-contract",
+  "package": "node.package.json",
+  "execution": {"algorithm": {"mode": "event_driven"}},
+  "transport": {"http": {
+    "bind": {"interface": "127.0.0.1", "port": 8080},
+    "routes": {
+      "value": {"mode": "server", "path": "/value", "method": "POST"},
+      "incremented": {"mode": "server", "path": "/incremented", "method": "GET"}
+    }
+  }},
+  "channelDefaults": [{"match": {"direction": "input", "transport": "http"}, "buffer": {"capacity": 1, "treatment": "drop_old"}}],
+  "channelOverrides": {},
+  "config": {"increment": 1}
+}

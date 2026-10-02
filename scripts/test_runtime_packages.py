@@ -4,19 +4,20 @@ import json
 import pathlib
 import re
 import unittest
+from typing import Any, cast
 
 
 ROOT = pathlib.Path(__file__).parents[1]
 IMPORT_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$")
 
 
-def load_manifest(path: pathlib.Path) -> dict:
+def load_manifest(path: pathlib.Path) -> dict[str, Any]:
     payload = path.read_text().replace("{{KTM_CREATE_RUN_ENVIRONMENTS_JSON}}", "[]")
     payload = payload.replace(
         "{{KTM_CREATE_DESCRIPTION_JSON_STRING}}", json.dumps("description")
     )
     payload = payload.replace("{{KTM_CREATE_AUTHOR_JSON_STRING}}", json.dumps("author"))
-    return json.loads(payload)
+    return cast(dict[str, Any], json.loads(payload))
 
 
 class RuntimePackageContractTests(unittest.TestCase):

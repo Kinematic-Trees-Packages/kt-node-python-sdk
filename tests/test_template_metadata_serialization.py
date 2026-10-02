@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import json
 import pathlib
-import tomllib
 import unittest
 
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.9-3.10 source-test compatibility
+    tomllib = None  # type: ignore[assignment]
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 BOILERPLATES = (
@@ -27,6 +30,19 @@ def render_template(source: str, values: dict[str, str]) -> str:
     for name, value in values.items():
         source = source.replace(f"{{{{KTM_CREATE_{name}}}}}", value)
     return source
+
+
+def parse_project_metadata(source: str) -> dict[str, object]:
+    if tomllib is not None:
+        return dict(tomllib.loads(source)["project"])
+    project: dict[str, object] = {}
+    for line in source.splitlines():
+        if line.startswith("description = "):
+            project["description"] = json.loads(line.removeprefix("description = "))
+        elif line.startswith("authors = [{name = ") and line.endswith("}]"):
+            literal = line.removeprefix("authors = [{name = ").removesuffix("}]")
+            project["authors"] = [{"name": json.loads(literal)}]
+    return project
 
 
 class TemplateMetadataSerializationTests(unittest.TestCase):
@@ -77,15 +93,15 @@ class TemplateMetadataSerializationTests(unittest.TestCase):
                         (root / "package.ktm.json.template").read_text(), values
                     )
                 )
-                pyproject = tomllib.loads(
+                project = parse_project_metadata(
                     render_template(
                         (root / "pyproject.toml.template").read_text(), values
                     )
                 )
                 self.assertEqual(manifest["metadata"]["description"], description)
                 self.assertEqual(manifest["metadata"]["author"], author)
-                self.assertEqual(pyproject["project"]["description"], description)
-                self.assertEqual(pyproject["project"]["authors"], [{"name": author}])
+                self.assertEqual(project["description"], description)
+                self.assertEqual(project["authors"], [{"name": author}])
 
     def test_published_and_legacy_structured_contracts_match(self) -> None:
         legacy, published = BOILERPLATES

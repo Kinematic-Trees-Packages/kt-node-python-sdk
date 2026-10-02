@@ -43,7 +43,11 @@ ldflags_from_library_path() {
 }
 
 require_kt_node_build_env
-python3 -m py_compile src/{{KTM_CREATE_MODULE_NAME}}/*.py examples/basic.py tests/test_smoke.py
+project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+project_src="$project_root/src"
+export PYTHONPATH="$project_src${PYTHONPATH:+:$PYTHONPATH}"
+
+python3 -m py_compile "$project_src"/{{KTM_CREATE_MODULE_NAME}}/*.py "$project_root/examples/basic.py" "$project_root/tests/test_smoke.py"
 python3 - <<'PY'
 import kt.messages
 from kt.messages import *  # noqa: F403
@@ -52,9 +56,8 @@ assert len(kt.messages.__all__) == 26
 assert all(name in globals() for name in kt.messages.__all__)
 print("kt-messages wildcard import passed")
 PY
-PYTHONPATH=src python3 examples/basic.py
-PYTHONPATH=src python3 -m pytest -q tests || PYTHONPATH=src python3 - <<'PY'
-from {{KTM_CREATE_MODULE_NAME}} import Robot
-print(type(Robot()).__name__)
-PY
+echo "Running generated example"
+python3 "$project_root/examples/basic.py"
+echo "Running generated unittest suite"
+python3 -m unittest discover -s "$project_root/tests" -p 'test*.py' -v
 echo "Python kt-node smoke passed"

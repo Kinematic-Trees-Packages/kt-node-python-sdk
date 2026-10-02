@@ -1,0 +1,169 @@
+import os
+import pathlib
+import shutil
+import subprocess
+import sys
+import tempfile
+import unittest
+
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+MODULE = "honest_starter"
+
+
+class TemplateFailureStatusTests(unittest.TestCase):
+    maxDiff = None
+
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.root = pathlib.Path(self.temporary.name)
+        self.project = self.root / "project"
+        self.composed = self.root / "composed"
+        self.include = self.root / "include"
+        self.library = self.root / "library"
+        shutil.copytree(ROOT / "template-package" / "boilerplate", self.project)
+        module_template = self.project / "src" / "{{KTM_CREATE_MODULE_NAME}}"
+        module_template.rename(module_template.with_name(MODULE))
+
+        for path in list(self.project.rglob("*")):
+            if not path.is_file():
+                continue
+            path.write_text(path.read_text().replace("{{KTM_CREATE_MODULE_NAME}}", MODULE))
+            if path.name.endswith(".template"):
+                path.rename(path.with_name(path.name.removesuffix(".template")))
+
+        messages = self.composed / "kt" / "messages"
+        messages.mkdir(parents=True)
+        (self.composed / "kt" / "__init__.py").write_text("")
+        names = [f"schema_{index:02d}" for index in range(26)]
+        (messages / "__init__.py").write_text(
+            f"__all__ = {names!r}\n" + "\n".join(f"{name} = object()" for name in names) + "\n"
+        )
+        (self.composed / "ktnode.py").write_text(
+            "class Context: pass\n"
+            "class Node: pass\n"
+            "class Runtime: pass\n"
+            "class NextStep:\n    STOP = object()\n"
+        )
+        self.include.mkdir()
+        self.library.mkdir()
+        (self.include / "kt_node.h").write_text("/* fixture */\n")
+        (self.library / "libkt_node.so").write_bytes(b"")
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    def run_script(self) -> subprocess.CompletedProcess[str]:
+        environment = os.environ.copy()
+        environment.update(
+            {
+                "CPATH": str(self.include),
+                "LIBRARY_PATH": str(self.library),
+                "PYTHONPATH": str(self.composed),
+            }
+        )
+        return subprocess.run(
+            ["bash", "scripts/test.sh"],
+            cwd=self.project,
+            env=environment,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+
+    def test_baseline_runs_real_unittest_and_preserves_composed_path(self) -> None:
+        result = self.run_script()
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("Running generated unittest suite", result.stdout)
+        self.assertIn("Ran 1 test", result.stdout)
+        self.assertIn("OK", result.stdout)
+        self.assertIn("kt-messages wildcard import passed", result.stdout)
+
+    def test_assertion_failure_is_nonzero_with_original_diagnostic(self) -> None:
+        test_file = self.project / "tests" / "test_smoke.py"
+        test_file.write_text(
+            test_file.read_text().replace(
+                'self.assertEqual(Robot.__mro__[1].__name__, "Node")',
+                'self.fail("KIN-14 deliberate assertion failure")',
+            )
+        )
+        result = self.run_script()
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertIn("KIN-14 deliberate assertion failure", result.stdout)
+
+    def test_import_failure_is_nonzero_with_original_diagnostic(self) -> None:
+        test_file = self.project / "tests" / "test_smoke.py"
+        test_file.write_text("import deliberately_missing_kin14_dependency\n" + test_file.read_text())
+        result = self.run_script()
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertIn("ModuleNotFoundError", result.stdout)
+        self.assertIn("deliberately_missing_kin14_dependency", result.stdout)
+
+    def test_example_failure_stops_before_test_suite(self) -> None:
+        example = self.project / "examples" / "basic.py"
+        example.write_text('raise RuntimeError("KIN-14 deliberate example failure")\n')
+        result = self.run_script()
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertIn("KIN-14 deliberate example failure", result.stdout)
+        self.assertIn("Running generated example", result.stdout)
+        self.assertNotIn("Running generated unittest suite", result.stdout)
+
+    def test_outer_ktm_mutation_verifier_rejects_and_restores_failures(self) -> None:
+        fake_ktm = self.root / "ktm"
+        fake_ktm.write_text("#!/bin/sh\nshift\nexec bash scripts/test.sh\n")
+        fake_ktm.chmod(0o755)
+        original_test = (self.project / "tests" / "test_smoke.py").read_bytes()
+        original_example = (self.project / "examples" / "basic.py").read_bytes()
+        logs = self.root / "mutation-logs"
+        environment = os.environ.copy()
+        environment.update(
+            {
+                "CPATH": str(self.include),
+                "LIBRARY_PATH": str(self.library),
+                "PYTHONPATH": str(self.composed),
+            }
+        )
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "test_generated_template_failures.py"),
+                "--project",
+                str(self.project),
+                "--home",
+                str(self.root / "home"),
+                "--platform",
+                "linux_20",
+                "--log-dir",
+                str(logs),
+                "--ktm",
+                str(fake_ktm),
+            ],
+            env=environment,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual((self.project / "tests" / "test_smoke.py").read_bytes(), original_test)
+        self.assertEqual((self.project / "examples" / "basic.py").read_bytes(), original_example)
+        self.assertEqual(len(list(logs.glob("*.log"))), 5)
+
+    def test_legacy_and_packaged_boilerplate_are_identical(self) -> None:
+        for relative in (
+            "README.md.template",
+            "docs/sdk.md.template",
+            "scripts/test.sh",
+            "tests/test_smoke.py.template",
+            "pyproject.toml.template",
+        ):
+            self.assertEqual(
+                (ROOT / "boilerplate" / relative).read_bytes(),
+                (ROOT / "template-package" / "boilerplate" / relative).read_bytes(),
+                relative,
+            )
+
+
+if __name__ == "__main__":
+    unittest.main()

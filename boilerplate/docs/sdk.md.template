@@ -38,7 +38,7 @@ Prefer KTM commands. If you need to run Python tooling directly, export the KTM 
 
 ```bash
 eval "$(ktm env --shell)"
-python3 -m pytest
+PYTHONPATH="${PWD}/src${PYTHONPATH:+:${PYTHONPATH}}" python3 -m unittest discover -s tests -p 'test*.py' -v
 python3 examples/basic.py
 ```
 

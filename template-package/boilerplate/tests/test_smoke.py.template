@@ -1,5 +1,12 @@
+import unittest
+
 from {{KTM_CREATE_MODULE_NAME}} import Robot
 
 
-def test_robot_uses_public_sdk_node() -> None:
-    assert Robot.__mro__[1].__name__ == "Node"
+class RobotSmokeTests(unittest.TestCase):
+    def test_robot_uses_public_sdk_node(self) -> None:
+        self.assertEqual(Robot.__mro__[1].__name__, "Node")
+
+
+if __name__ == "__main__":
+    unittest.main()

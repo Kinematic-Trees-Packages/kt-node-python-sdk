@@ -58,7 +58,7 @@ Use native tooling directly only when you are debugging the language toolchain i
 
 ```bash
 eval "$(ktm env --shell)"
-python3 -m pytest || scripts/test.sh
+./scripts/test.sh
 ```
 
 If native linking fails manually, compare with:

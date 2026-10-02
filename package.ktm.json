@@ -17,7 +17,7 @@
           "linux_18": "linux_18",
           "linux_20": "linux_20"
         },
-        "name": "kt-node",
+        "name": "libkt",
         "owner": "kinematic-trees",
         "version": "0.1.1"
       },
@@ -73,7 +73,7 @@
         "name": "Kinematic Trees Package Team"
       }
     ],
-    "name": "kt-node-python-sdk",
+    "name": "kt-python-sdk",
     "namespace": "kinematic-trees",
     "packageType": "local",
     "repository": {

@@ -21,6 +21,37 @@ def load_manifest(path: pathlib.Path) -> dict[str, Any]:
 
 
 class RuntimePackageContractTests(unittest.TestCase):
+    def test_ktm_package_coordinates_use_libkt_naming(self) -> None:
+        sdk = load_manifest(ROOT / "package.ktm.json")
+        self.assertEqual(
+            (sdk["metadata"]["namespace"], sdk["metadata"]["name"]),
+            ("kinematic-trees", "kt-python-sdk"),
+        )
+        runtime = [
+            item
+            for item in sdk["dependencies"]["packages"]
+            if item["classification"] == "library"
+        ]
+        self.assertEqual(
+            [(item["owner"], item["name"], item["version"]) for item in runtime],
+            [("kinematic-trees", "libkt", "0.1.1")],
+        )
+
+        template = load_manifest(ROOT / "template-package" / "package.ktm.json")
+        self.assertEqual(
+            (template["metadata"]["namespace"], template["metadata"]["name"]),
+            ("kinematic-trees", "kt-python-template"),
+        )
+        template_sdk = [
+            item
+            for item in template["dependencies"]["packages"]
+            if item["classification"] == "library"
+        ]
+        self.assertEqual(
+            [(item["owner"], item["name"], item["version"]) for item in template_sdk],
+            [("kinematic-trees", "kt-python-sdk", "0.2.0")],
+        )
+
     def test_all_environments_export_the_same_python_wheel(self) -> None:
         manifest = json.loads((ROOT / "package.ktm.json").read_text())
         expected = {

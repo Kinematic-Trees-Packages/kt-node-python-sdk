@@ -1,6 +1,6 @@
 # {{KTM_CREATE_PROJECT_NAME}}
 
-Editable Kinematic Trees `python` project created from a KTM-installed kt-node boilerplate package.
+Editable Kinematic Trees `python` project created from a KTM-installed libkt boilerplate package.
 
 KTM copied this project out of the immutable package store so you can edit it normally. Work in this directory, not in the installed boilerplate package.
 
@@ -32,7 +32,7 @@ src/{{KTM_CREATE_MODULE_NAME}}/robot.py
 
 The generated `package.ktm.json` declares the Python SDK and
 `kinematic-trees/kt-messages@0.1.0`. The SDK resolves the native
-`kinematic-trees/kt-node@{{KTM_CREATE_KT_NODE_VERSION}}` runtime transitively.
+`kinematic-trees/libkt@{{KTM_CREATE_KT_NODE_VERSION}}` runtime transitively.
 
 The starter imports every collision-free datatype namespace:
 

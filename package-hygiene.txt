@@ -1,1 +1,1 @@
-kt-node-python-sdk source SDK package; depends on kinematic-trees/kt-node@0.1.1; no native runtime bundled.
+kt-python-sdk source SDK package; depends on kinematic-trees/libkt@0.1.1; no native runtime bundled.

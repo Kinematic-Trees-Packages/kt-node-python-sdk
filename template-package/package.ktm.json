@@ -2,7 +2,7 @@
   "schemaVersion": "3",
   "metadata": {
     "namespace": "kinematic-trees",
-    "name": "kt-node-python-template",
+    "name": "kt-python-template",
     "version": "0.1.0",
     "description": "KTM project template for Python processes using the KT Node Python SDK.",
     "author": "Kinematic Trees Package Team",
@@ -30,7 +30,7 @@
     "packages": [
       {
         "owner": "kinematic-trees",
-        "name": "kt-node-python-sdk",
+        "name": "kt-python-sdk",
         "version": "0.2.0",
         "classification": "library",
         "environments": {"linux_20": "linux_20"}

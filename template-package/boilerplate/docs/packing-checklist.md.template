@@ -43,7 +43,7 @@ ktm pack --platform {{KTM_CREATE_PRIMARY_PLATFORM}} --mode compiled-source
 
 ## Dependency ownership / eject review
 
-The default pack modes keep `kinematic-trees/kt-node@{{KTM_CREATE_KT_NODE_VERSION}}` as a KTM-managed dependency. A normal compiled or compiled-source package must not copy KTM store paths, dependency shared libraries, headers, or metadata into the project payload.
+The default pack modes keep `kinematic-trees/libkt@{{KTM_CREATE_KT_NODE_VERSION}}` as a KTM-managed dependency. A normal compiled or compiled-source package must not copy KTM store paths, dependency shared libraries, headers, or metadata into the project payload.
 
 A future eject/self-contained flow should be explicit and separately reviewed because it changes who owns dependency updates, license notices, SBOM evidence, and security patching. Until that flow exists, `ktm pack --mode eject` is expected to fail rather than silently vendor dependencies.
 

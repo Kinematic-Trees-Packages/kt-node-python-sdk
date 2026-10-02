@@ -30,7 +30,7 @@
   "dependencies": {
     "system": [],
     "packages": [
-      {"owner": "kinematic-trees", "name": "kt-node-python-sdk", "version": "0.2.0", "classification": "library", "environments": {"linux_20": "linux_20"}},
+      {"owner": "kinematic-trees", "name": "kt-python-sdk", "version": "0.2.0", "classification": "library", "environments": {"linux_20": "linux_20"}},
       {"owner": "kinematic-trees", "name": "kt-messages", "version": "0.1.0", "classification": "data_types", "environments": {"linux_20": "portable"}}
     ],
     "optional": []

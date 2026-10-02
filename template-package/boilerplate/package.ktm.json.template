@@ -21,7 +21,7 @@
     "packages": [
       {
         "owner": "kinematic-trees",
-        "name": "kt-node-python-sdk",
+        "name": "kt-python-sdk",
         "version": "0.2.0",
         "classification": "library",
         "environments": {"linux_18": "linux_18", "linux_20": "linux_20"}

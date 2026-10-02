@@ -35,7 +35,13 @@ class TemplateFailureStatusTests(unittest.TestCase):
         messages = self.composed / "kt" / "messages"
         messages.mkdir(parents=True)
         (self.composed / "kt" / "__init__.py").write_text("")
-        names = [f"schema_{index:02d}" for index in range(26)]
+        names = [
+            "codec_for",
+            "registered_datatypes",
+            "string_sample",
+            "vision_sample",
+            *(f"schema_{index:02d}" for index in range(22)),
+        ]
         (messages / "__init__.py").write_text(
             f"__all__ = {names!r}\n" + "\n".join(f"{name} = object()" for name in names) + "\n"
         )

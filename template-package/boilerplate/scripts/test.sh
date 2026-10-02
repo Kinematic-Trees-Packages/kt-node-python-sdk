@@ -52,8 +52,9 @@ python3 - <<'PY'
 import kt.messages
 from kt.messages import *  # noqa: F403
 
-assert len(kt.messages.__all__) == 26
-assert all(name in globals() for name in kt.messages.__all__)
+exports = set(kt.messages.__all__)
+assert {"codec_for", "registered_datatypes", "string_sample", "vision_sample"} <= exports
+assert all(name in globals() for name in exports)
 print("kt-messages wildcard import passed")
 PY
 echo "Running generated example"

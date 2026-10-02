@@ -56,11 +56,11 @@ class RuntimePackageContractTests(unittest.TestCase):
         manifest = json.loads((ROOT / "package.ktm.json").read_text())
         expected = {
             "ecosystem": "python",
-            "name": "kt-node-python-sdk",
+            "name": "kt-python-sdk",
             "version": manifest["metadata"]["version"],
             "artifact": {
                 "format": "wheel",
-                "path": "python-dist/kt_node_python_sdk-0.2.0-py3-none-any.whl",
+                "path": "python-dist/kt_python_sdk-0.2.0-py3-none-any.whl",
             },
             "python": {"importNames": ["ktnode"], "requiresPython": ">=3.9"},
         }

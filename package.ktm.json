@@ -103,11 +103,11 @@
         "runtimePackages": [
           {
             "ecosystem": "python",
-            "name": "kt-node-python-sdk",
+            "name": "kt-python-sdk",
             "version": "0.2.0",
             "artifact": {
               "format": "wheel",
-              "path": "python-dist/kt_node_python_sdk-0.2.0-py3-none-any.whl"
+              "path": "python-dist/kt_python_sdk-0.2.0-py3-none-any.whl"
             },
             "python": {
               "importNames": [
@@ -145,11 +145,11 @@
         "runtimePackages": [
           {
             "ecosystem": "python",
-            "name": "kt-node-python-sdk",
+            "name": "kt-python-sdk",
             "version": "0.2.0",
             "artifact": {
               "format": "wheel",
-              "path": "python-dist/kt_node_python_sdk-0.2.0-py3-none-any.whl"
+              "path": "python-dist/kt_python_sdk-0.2.0-py3-none-any.whl"
             },
             "python": {
               "importNames": [

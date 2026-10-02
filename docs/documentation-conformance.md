@@ -6,7 +6,7 @@ Goal 7 validation completed on 2026-09-16 for SDK v0.2 source.
 
 - Generator: MkDocs 1.6.1, Material 9.6.14, mkdocstrings 0.29.1.
 - Output path: `build/docs/v0.2`.
-- Artifact: `build/docs-artifacts/kt-node-python-sdk-docs-v0.2.tar.gz`.
+- Artifact: `build/docs-artifacts/kt-python-sdk-docs-v0.2.tar.gz`.
 - Scope: 22 generated HTML pages with local search and generated Python API reference.
 - Reproducibility: two clean builds produced identical SHA-256
   `ced7cad4aaa9edc169a44ea0a5307afaba8cbd22e7a7074710aea9233b5b1489`.

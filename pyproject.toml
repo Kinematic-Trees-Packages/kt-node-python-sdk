@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "kt-node-python-sdk"
+name = "kt-python-sdk"
 version = "0.2.0"
 description = "Python bindings for the frozen KT Node C ABI"
 requires-python = ">=3.9"

@@ -2,8 +2,8 @@
 
 The SDK and runtime are separate artifacts:
 
-- `kt-node-python-sdk` provides the `ktnode` Python package.
-- `kinematic-trees/kt-node` provides `libkt_node`, the C header, schemas, and runtime dependency metadata.
+- `kt-python-sdk` provides the `ktnode` Python package.
+- `kinematic-trees/libkt` provides `libkt_node`, the C header, schemas, and runtime dependency metadata.
 
 The recommended path is a KTM-created project because KTM installs both and composes `LD_LIBRARY_PATH` or equivalent platform paths.
 

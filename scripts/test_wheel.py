@@ -60,7 +60,7 @@ class WheelTests(unittest.TestCase):
                     "-c",
                     (
                         "import importlib.metadata, ktnode, pathlib; "
-                        "assert importlib.metadata.version('kt-node-python-sdk') == '0.2.0'; "
+                        "assert importlib.metadata.version('kt-python-sdk') == '0.2.0'; "
                         "assert 'site-packages' in pathlib.Path(ktnode.__file__).as_posix(); "
                         + (
                             "from kt.messages import codec_for; "

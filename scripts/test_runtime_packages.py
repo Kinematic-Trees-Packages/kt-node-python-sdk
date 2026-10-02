@@ -68,7 +68,9 @@ class RuntimePackageContractTests(unittest.TestCase):
                         "classification": "data_types",
                     },
                 )
-                self.assertTrue(messages[0]["environments"])
+                self.assertEqual(
+                    set(messages[0]["environments"].values()), {"portable"}
+                )
 
     def test_generated_starters_import_all_datatype_namespaces(self) -> None:
         paths = [

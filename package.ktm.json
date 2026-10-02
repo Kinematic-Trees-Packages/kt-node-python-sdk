@@ -24,8 +24,8 @@
       {
         "classification": "data_types",
         "environments": {
-          "linux_18": "linux_18",
-          "linux_20": "linux_20"
+          "linux_18": "portable",
+          "linux_20": "portable"
         },
         "name": "kt-messages",
         "owner": "kinematic-trees",

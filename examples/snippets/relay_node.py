@@ -1,10 +1,10 @@
-from ktnode import Context, NextStep, Node, ReadMode
+from ktnode import Context, Get, NextStep, Node, Set
 
 
 class Relay(Node):
     def step(self, ctx: Context) -> NextStep:
-        messages = ctx.get("in", ReadMode.ONE)
-        if not messages:
+        value = Get(ctx, "in")
+        if value is None:
             return NextStep.RECOVERABLE
-        ctx.set("out", messages[0].payload)
+        Set(ctx, "out", value)
         return NextStep.CONTINUE

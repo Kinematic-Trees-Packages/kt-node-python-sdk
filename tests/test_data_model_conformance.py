@@ -1,7 +1,7 @@
 import ctypes
 import unittest
 
-from ktnode import Context, ReadMode, abi
+from ktnode import ChannelContract, ChannelContractIndex, Context, ReadMode, abi
 
 
 class FakeBatchLib:
@@ -50,7 +50,11 @@ class FakeBatchLib:
 class DataModelConformanceTests(unittest.TestCase):
     def _context(self, messages):
         lib = FakeBatchLib(messages)
-        return Context(lib, ctypes.pointer(abi.KtAlgorithmContext())), lib
+        channels = ChannelContractIndex(
+            {"input": ChannelContract("input", "kt/common/blob_sample", "input")},
+            {},
+        )
+        return Context(lib, ctypes.pointer(abi.KtAlgorithmContext()), channels), lib
 
     def test_all_available_preserves_binary_payload_source_and_timestamp(self):
         large = bytes(range(256)) * 16384

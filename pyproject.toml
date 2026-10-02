@@ -48,6 +48,10 @@ disable_error_code = ["valid-type", "assignment", "no-any-return"]
 module = "flatbuffers.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "kt_messages._flatbuffers.*"
+ignore_missing_imports = true
+
 [tool.ruff]
 target-version = "py39"
 line-length = 140

@@ -9,22 +9,16 @@ from enum import IntEnum, IntFlag
 from typing import Any
 
 from . import abi
-
-
-class KtError(RuntimeError):
-    """Base error raised by the KT Node Python SDK."""
-
-
-class AbiCompatibilityError(KtError):
-    """The loaded native library is incompatible with this SDK."""
-
-
-class UnsupportedCapabilityError(KtError):
-    """The loaded runtime does not provide a requested capability."""
-
-
-class ClosedResourceError(KtError):
-    """A runtime or callback context was used after its lifetime ended."""
+from .channels import ChannelContractIndex
+from .errors import (
+    AbiCompatibilityError,
+    ClosedResourceError,
+    KtError,
+    MissingCodecError,
+    PayloadDecodeError,
+    UnsupportedCapabilityError,
+    ValueEncodeError,
+)
 
 
 class NextStep(IntEnum):
@@ -84,6 +78,15 @@ class Message:
 
 
 @dataclass(frozen=True)
+class Received:
+    """One decoded batch value with optional transport metadata."""
+
+    value: Any
+    source_id: str | None = None
+    remote_time_ns: int | None = None
+
+
+@dataclass(frozen=True)
 class ConfigUpdate:
     """Parsed V2 configuration-update event supplied to a node callback."""
 
@@ -104,9 +107,15 @@ def _decode_json(view: abi.KtStringView) -> Any:
 class Context:
     """Borrowed callback context valid only until the current callback returns."""
 
-    def __init__(self, lib: ctypes.CDLL, ptr: ctypes.POINTER(abi.KtAlgorithmContext)) -> None:
+    def __init__(
+        self,
+        lib: ctypes.CDLL,
+        ptr: ctypes.POINTER(abi.KtAlgorithmContext),
+        channels: ChannelContractIndex,
+    ) -> None:
         self._lib = lib
         self._ptr = ptr
+        self._channels = channels
         self._active = True
 
     def _require_active(self) -> None:
@@ -116,6 +125,12 @@ class Context:
     def _invalidate(self) -> None:
         self._active = False
         self._ptr = ctypes.POINTER(abi.KtAlgorithmContext)()
+
+    @property
+    def channels(self) -> ChannelContractIndex:
+        """Return this runtime's immutable channel contract index."""
+
+        return self._channels
 
     def is_closing(self) -> bool:
         """Return whether cooperative shutdown has been requested."""
@@ -139,10 +154,11 @@ class Context:
         _check_status(self._lib, self._lib.kt_context_report_error(self._ptr, view))
         _ = keepalive
 
-    def set(self, channel: str, payload: bytes | bytearray | memoryview) -> None:
+    def set_raw(self, channel: str, payload: bytes | bytearray | memoryview) -> None:
         """Copy a payload to a single-source output channel."""
 
         self._require_active()
+        self._channels.output(channel)
         channel_view, channel_keepalive = abi.string_view(channel)
         payload_view, payload_keepalive = abi.bytes_view(payload)
         error = ctypes.POINTER(abi.KtError)()
@@ -150,10 +166,11 @@ class Context:
         _ = (channel_keepalive, payload_keepalive)
         _check_status(self._lib, status, error)
 
-    def set_from(self, channel: str, source_id: str, payload: bytes | bytearray | memoryview) -> None:
+    def set_raw_from(self, channel: str, source_id: str, payload: bytes | bytearray | memoryview) -> None:
         """Copy a payload with an explicit source identifier to an output channel."""
 
         self._require_active()
+        self._channels.output(channel)
         channel_view, channel_keepalive = abi.string_view(channel)
         source_view, source_keepalive = abi.string_view(source_id)
         payload_view, payload_keepalive = abi.bytes_view(payload)
@@ -208,7 +225,7 @@ class Context:
             raise UnsupportedCapabilityError("loaded ABI does not export kt_context_config_revision")
         return int(function(self._ptr))
 
-    def get(
+    def get_raw(
         self,
         channel: str,
         mode: ReadMode | int = ReadMode.ONE,
@@ -217,6 +234,7 @@ class Context:
         """Read copied messages from an input channel using the requested mode."""
 
         self._require_active()
+        self._channels.input(channel)
         try:
             selected_mode = ReadMode(mode)
         except ValueError as mode_error:
@@ -263,6 +281,89 @@ class Context:
         finally:
             self._lib.kt_message_batch_destroy(ctypes.byref(batch))
 
+    def set(self, channel: str, payload: bytes | bytearray | memoryview) -> None:
+        """Compatibility alias for :meth:`set_raw`."""
+
+        self.set_raw(channel, payload)
+
+    def set_from(self, channel: str, source_id: str, payload: bytes | bytearray | memoryview) -> None:
+        """Compatibility alias for :meth:`set_raw_from`."""
+
+        self.set_raw_from(channel, source_id, payload)
+
+    def get(
+        self,
+        channel: str,
+        mode: ReadMode | int = ReadMode.ONE,
+        count: int = 0,
+    ) -> list[Message]:
+        """Compatibility alias for :meth:`get_raw`."""
+
+        return self.get_raw(channel, mode, count)
+
+
+def _channel_codec(channel: str, datatype: str) -> Any:
+    try:
+        from kt.messages import codec_for
+    except ImportError as error:
+        raise MissingCodecError(
+            f"datatype codecs are unavailable for channel {channel!r}; install kt-messages"
+        ) from error
+    try:
+        return codec_for(datatype)
+    except KeyError as error:
+        raise MissingCodecError(
+            f"no datatype codec for channel {channel!r}: {datatype}"
+        ) from error
+
+
+def Get(
+    ctx: Context,
+    channel: str,
+    mode: ReadMode | int = ReadMode.ONE,
+    count: int = 0,
+) -> Any:
+    """Read and decode values according to the channel's declared datatype.
+
+    ``ReadMode.ONE`` returns one natural value or immutable view, or ``None``
+    when no message is available. Batch modes return ``Received`` values so
+    source and remote-time metadata are never discarded.
+    """
+
+    contract = ctx.channels.input(channel)
+    codec = _channel_codec(channel, contract.datatype)
+    selected_mode = ReadMode(mode)
+    messages = ctx.get_raw(channel, selected_mode, count)
+
+    def decode(message: Message) -> Any:
+        try:
+            return codec.decode(message.payload)
+        except (TypeError, ValueError) as error:
+            raise PayloadDecodeError(
+                f"cannot decode input channel {channel!r} as {contract.datatype}: {error}"
+            ) from error
+
+    if selected_mode is ReadMode.ONE:
+        return None if not messages else decode(messages[0])
+    return [Received(decode(message), message.source_id, message.remote_time_ns) for message in messages]
+
+
+def Set(ctx: Context, channel: str, value: object, *, source_id: str | None = None) -> None:
+    """Encode and write a value according to the channel's declared datatype."""
+
+    contract = ctx.channels.output(channel)
+    codec = _channel_codec(channel, contract.datatype)
+    try:
+        payload = codec.encode(value)
+    except (TypeError, ValueError) as error:
+        raise ValueEncodeError(
+            f"cannot encode output channel {channel!r} as {contract.datatype}: {error}"
+        ) from error
+    if source_id is None:
+        ctx.set_raw(channel, payload)
+    else:
+        ctx.set_raw_from(channel, source_id, payload)
+
 
 class Node:
     """Base class for KT process lifecycle and configuration callbacks."""
@@ -292,6 +393,7 @@ class Runtime:
     """Owned high-level wrapper around one native KT runtime instance."""
 
     def __init__(self, package_path: str, runtime_path: str, node: Node, library_path: str | None = None) -> None:
+        self._channels = ChannelContractIndex.from_package(package_path)
         self._lib = abi.load_library(library_path)
         major = int(self._lib.kt_abi_version_major())
         minor = int(self._lib.kt_abi_version_minor())
@@ -406,7 +508,7 @@ class Runtime:
         self.close()
 
     def _invoke(self, method: str, ctx_ptr: ctypes.POINTER(abi.KtAlgorithmContext), update: ConfigUpdate | None = None) -> int:
-        ctx = Context(self._lib, ctx_ptr)
+        ctx = Context(self._lib, ctx_ptr, self._channels)
         try:
             result = getattr(self._node, method)(ctx) if update is None else getattr(self._node, method)(ctx, update)
             return int(result)

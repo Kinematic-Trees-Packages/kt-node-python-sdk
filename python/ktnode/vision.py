@@ -165,6 +165,6 @@ def decode_image_sample_summary(payload: bytes) -> dict[str, Any]:
 
 
 def _generated_modules() -> tuple[Any, Any, Any, Any]:
-    from kt.messages.vision_sample import CompressionFormat, ImageSample, ImageType, MediaPipeline
+    from kt_messages._flatbuffers.kt.messages.vision_sample import CompressionFormat, ImageSample, ImageType, MediaPipeline
 
     return ImageSample, CompressionFormat, ImageType, MediaPipeline

@@ -16,10 +16,10 @@ the owning high-level operation.
 | `kt_context_is_closing` | `Context.is_closing()` | callback-context tests |
 | `kt_context_request_close` | `Context.request_close()` | callback-context tests |
 | `kt_context_report_error` | `Context.report_error()` and callback exception trampoline | callback error tests |
-| `kt_context_set` | `Context.set()` | data tests |
-| `kt_context_set_source` | `Context.set_from()` | data tests |
-| `kt_context_read` | `Context.get()` | data tests |
-| `kt_message_batch_count`, `kt_message_batch_item`, `kt_message_batch_destroy` | owned internally by `Context.get()` | data tests |
+| `kt_context_set` | `Set(...)`, `Context.set_raw()` | typed/raw data tests |
+| `kt_context_set_source` | `Set(..., source_id=...)`, `Context.set_raw_from()` | typed/raw data tests |
+| `kt_context_read` | `Get(...)`, `Context.get_raw()` | typed/raw data tests |
+| `kt_message_batch_count`, `kt_message_batch_item`, `kt_message_batch_destroy` | owned internally by `Context.get_raw()` | data tests |
 | `kt_context_metrics_json` | `Context.metrics_json()`, `metrics()` | context tests |
 | `kt_context_config_json` | `Context.config_json()`, `config()` | config callback tests |
 | `kt_context_config_revision` | `Context.config_revision()` | config callback tests |

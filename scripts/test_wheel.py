@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import pathlib
 import subprocess
 import sys
@@ -32,6 +33,13 @@ class WheelTests(unittest.TestCase):
             environment = temporary / "venv"
             subprocess.run([sys.executable, "-m", "venv", str(environment)], check=True)
             python = environment / "bin" / "python"
+            dependencies = []
+            messages_wheel = os.environ.get("KT_MESSAGES_WHEEL")
+            flatbuffers_wheel = os.environ.get("KT_FLATBUFFERS_WHEEL")
+            if bool(messages_wheel) != bool(flatbuffers_wheel):
+                self.fail("KT_MESSAGES_WHEEL and KT_FLATBUFFERS_WHEEL must be provided together")
+            if flatbuffers_wheel and messages_wheel:
+                dependencies.extend((flatbuffers_wheel, messages_wheel))
             subprocess.run(
                 [
                     str(python),
@@ -41,6 +49,7 @@ class WheelTests(unittest.TestCase):
                     "--disable-pip-version-check",
                     "--no-index",
                     "--no-deps",
+                    *dependencies,
                     str(wheel),
                 ],
                 check=True,
@@ -53,6 +62,15 @@ class WheelTests(unittest.TestCase):
                         "import importlib.metadata, ktnode, pathlib; "
                         "assert importlib.metadata.version('kt-node-python-sdk') == '0.2.0'; "
                         "assert 'site-packages' in pathlib.Path(ktnode.__file__).as_posix(); "
+                        + (
+                            "from kt.messages import codec_for; "
+                            "assert codec_for('kt/speech/string_sample').decode("
+                            "codec_for('kt/speech/string_sample').encode('clean-wheel')) == 'clean-wheel'; "
+                            "assert callable(ktnode.Get) and callable(ktnode.Set); "
+                            if messages_wheel
+                            else ""
+                        )
+                        +
                         "print(ktnode.__file__)"
                     ),
                 ],

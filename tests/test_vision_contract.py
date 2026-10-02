@@ -10,8 +10,11 @@ from ktnode.vision import decode_image_sample_summary, encode_image_sample, make
 
 class VisionContractTests(unittest.TestCase):
     def test_generated_binding_is_imported_from_kt_messages_package(self):
-        module = importlib.import_module("kt.messages.vision_sample.ImageSample")
-        self.assertIn("site-packages/kt/messages/vision_sample/ImageSample.py", Path(module.__file__).as_posix())
+        module = importlib.import_module("kt_messages._flatbuffers.kt.messages.vision_sample.ImageSample")
+        self.assertIn(
+            "site-packages/kt_messages/_flatbuffers/kt/messages/vision_sample/ImageSample.py",
+            Path(module.__file__).as_posix(),
+        )
         self.assertFalse((Path(__file__).parents[1] / "python" / "ktnode" / "generated").exists())
 
     def test_make_rgb_image_builds_contract_from_explicit_pixels(self):

@@ -3,7 +3,7 @@ import gc
 import unittest
 import weakref
 
-from ktnode import Capability, ClosedResourceError, NextStep, Node, UnsupportedCapabilityError, abi
+from ktnode import Capability, ChannelContractIndex, ClosedResourceError, NextStep, Node, UnsupportedCapabilityError, abi
 from ktnode.runtime import Context, KtError, RuntimeInfo, _check_status
 
 
@@ -58,7 +58,7 @@ class RuntimeContractTests(unittest.TestCase):
         self.assertEqual(ctypes.sizeof(abi.KtRuntimeOptionsV2), 88)
 
     def test_context_rejects_use_after_callback(self):
-        context = Context(FakeLib(), ctypes.POINTER(abi.KtAlgorithmContext)())
+        context = Context(FakeLib(), ctypes.POINTER(abi.KtAlgorithmContext)(), ChannelContractIndex({}, {}))
         context._invalidate()
         with self.assertRaises(ClosedResourceError):
             context.is_closing()

@@ -1,7 +1,0 @@
-[project]
-name = "{{KTM_CREATE_PACKAGE_NAME}}"
-version = "0.1.0"
-description = {{KTM_CREATE_DESCRIPTION_TOML_STRING}}
-authors = [{name = {{KTM_CREATE_AUTHOR_TOML_STRING}}}]
-requires-python = ">=3.9"
-dependencies = ["kt-python-sdk>=0.2.0"]

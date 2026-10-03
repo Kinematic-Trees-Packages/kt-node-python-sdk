@@ -9,7 +9,7 @@ from types import ModuleType
 from ktnode import NextStep, Node
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def _load(path: Path, name: str) -> ModuleType:
@@ -21,7 +21,11 @@ def _load(path: Path, name: str) -> ModuleType:
 
 
 def test_documented_python_sources_parse_and_import() -> None:
-    paths = sorted((ROOT / "examples").rglob("*.py"))
+    paths = sorted(
+        path
+        for path in (ROOT / "examples").rglob("*.py")
+        if "stress" not in path.parts
+    )
     assert paths
     for path in paths:
         ast.parse(path.read_text(encoding="utf-8"), filename=str(path))

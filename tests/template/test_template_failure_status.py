@@ -7,7 +7,7 @@ import tempfile
 import unittest
 
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = pathlib.Path(__file__).resolve().parents[2]
 MODULE = "honest_starter"
 
 
@@ -156,19 +156,9 @@ class TemplateFailureStatusTests(unittest.TestCase):
         self.assertEqual((self.project / "examples" / "basic.py").read_bytes(), original_example)
         self.assertEqual(len(list(logs.glob("*.log"))), 5)
 
-    def test_legacy_and_packaged_boilerplate_are_identical(self) -> None:
-        for relative in (
-            "README.md.template",
-            "docs/sdk.md.template",
-            "scripts/test.sh",
-            "tests/test_smoke.py.template",
-            "pyproject.toml.template",
-        ):
-            self.assertEqual(
-                (ROOT / "boilerplate" / relative).read_bytes(),
-                (ROOT / "template-package" / "boilerplate" / relative).read_bytes(),
-                relative,
-            )
+    def test_packaged_boilerplate_is_the_only_template_authority(self) -> None:
+        self.assertTrue((ROOT / "template-package" / "boilerplate" / "ktm-template.json").is_file())
+        self.assertFalse((ROOT / "boilerplate").exists())
 
 
 if __name__ == "__main__":

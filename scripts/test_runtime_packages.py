@@ -81,7 +81,6 @@ class RuntimePackageContractTests(unittest.TestCase):
     def test_datatypes_are_a_direct_package_dependency(self) -> None:
         paths = [
             ROOT / "package.ktm.json",
-            ROOT / "boilerplate" / "package.ktm.json.template",
             ROOT / "template-package" / "package.ktm.json",
             ROOT / "template-package" / "boilerplate" / "package.ktm.json.template",
         ]
@@ -105,7 +104,6 @@ class RuntimePackageContractTests(unittest.TestCase):
 
     def test_generated_starters_import_all_datatype_namespaces(self) -> None:
         paths = [
-            ROOT / "boilerplate" / "src" / "{{KTM_CREATE_MODULE_NAME}}" / "robot.py.template",
             ROOT
             / "template-package"
             / "boilerplate"

@@ -9,12 +9,8 @@ valid KT Node ImageSample messages.
 from __future__ import annotations
 
 import argparse
-import sys
 import time
 from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(ROOT / "sdk" / "python"))
 
 import cv2
 from ktnode.vision import make_rgb_image

@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "tests/fixtures/minimum_process_contract/v1"
 
 
@@ -68,4 +68,3 @@ def test_contract_records_metadata_and_error_decisions() -> None:
     assert "source_id" in text and "remote_time_ns" in text
     assert "Multiple sources" in text
     assert "malformed `Int64Value` bytes" in text
-

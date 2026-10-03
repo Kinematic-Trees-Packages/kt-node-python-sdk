@@ -2,7 +2,7 @@
 
 This document records the Python SDK's live conformance boundary for the
 frozen KT Node ABI 1.2 contract. The acceptance fixture is
-`tests/live_lifecycle_conformance.py`; it loads the real `libkt_node` and
+`tests/integration/live_lifecycle_conformance.py`; it loads the real `libkt_node` and
 does not substitute Python mocks for runtime behavior.
 
 ## Proven lifecycle matrix
@@ -55,4 +55,3 @@ clean Ubuntu 24.04 container. It must:
 
 Validated result: 500 iterations passed in 2.621 seconds within the configured
 64 MiB growth budget.
-

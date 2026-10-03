@@ -9,11 +9,8 @@ try:
 except ModuleNotFoundError:  # Python 3.9-3.10 source-test compatibility
     tomllib = None  # type: ignore[assignment]
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
-BOILERPLATES = (
-    ROOT / "boilerplate",
-    ROOT / "template-package" / "boilerplate",
-)
+ROOT = pathlib.Path(__file__).resolve().parents[2]
+BOILERPLATES = (ROOT / "template-package" / "boilerplate",)
 RAW_STRUCTURED_TOKENS = (
     "{{KTM_CREATE_DESCRIPTION}}",
     "{{KTM_CREATE_AUTHOR}}",
@@ -102,33 +99,6 @@ class TemplateMetadataSerializationTests(unittest.TestCase):
                 self.assertEqual(manifest["metadata"]["author"], author)
                 self.assertEqual(project["description"], description)
                 self.assertEqual(project["authors"], [{"name": author}])
-
-    def test_published_and_legacy_structured_contracts_match(self) -> None:
-        legacy, published = BOILERPLATES
-        legacy_metadata = json.loads((legacy / "ktm-template.json").read_text())
-        published_metadata = json.loads((published / "ktm-template.json").read_text())
-        self.assertEqual(
-            legacy_metadata["literalContexts"], published_metadata["literalContexts"]
-        )
-        self.assertEqual(
-            set(legacy_metadata["placeholders"]),
-            set(published_metadata["placeholders"]),
-        )
-
-        for relative in ("package.ktm.json.template", "pyproject.toml.template"):
-            legacy_lines = {
-                line.strip()
-                for line in (legacy / relative).read_text().splitlines()
-                if "DESCRIPTION_" in line or "AUTHOR_" in line
-            }
-            published_lines = {
-                line.strip()
-                for line in (published / relative).read_text().splitlines()
-                if "DESCRIPTION_" in line or "AUTHOR_" in line
-            }
-            with self.subTest(relative=relative):
-                self.assertEqual(legacy_lines, published_lines)
-
 
 if __name__ == "__main__":
     unittest.main()

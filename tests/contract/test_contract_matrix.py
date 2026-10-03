@@ -3,7 +3,7 @@ import re
 import unittest
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 CONTRACT = Path("/agent-root/workspace-main/kt_robotics/packaging/c-abi/contract-v1.2.json")
 
 

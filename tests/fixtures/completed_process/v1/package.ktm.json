@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "3",
+  "metadata": {
+    "namespace": "kinematic-trees-fixtures",
+    "name": "python-string-passthrough",
+    "version": "0.1.0",
+    "description": "Completed typed Python process used only for SDK acceptance.",
+    "author": "Kinematic Trees Package Team",
+    "language": "python",
+    "license": "MIT",
+    "packageType": "local"
+  },
+  "files": ["src", "package.ktm.json"],
+  "distribution": {"packages": [], "urlStrategy": "local-relative"},
+  "runEnvironments": [{"name": "linux_20", "type": "native", "os": "linux", "arch": "x64", "hostRequirements": {"libc": {"implementation": "glibc", "minimumVersion": "2.29"}}, "recipes": []}],
+  "runtime": {"sdk": "python"},
+  "dependencies": {
+    "system": [],
+    "packages": [
+      {"owner": "kinematic-trees", "name": "kt-python-sdk", "version": "0.2.0", "classification": "library", "environments": {"linux_20": "linux_20"}},
+      {"owner": "kinematic-trees", "name": "kt-messages", "version": "0.1.0", "classification": "data_types", "environments": {"linux_20": "portable"}}
+    ],
+    "optional": []
+  },
+  "resources": {"gpu": false, "ports": [], "x11": false},
+  "dataflow": {
+    "inputs": [{"name": "text_in", "datatype": "kt/speech/string_sample", "required": true}],
+    "outputs": [{"name": "text_out", "datatype": "kt/speech/string_sample"}]
+  },
+  "config": {"type": "object", "properties": {}, "required": []}
+}

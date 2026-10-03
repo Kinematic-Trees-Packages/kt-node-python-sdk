@@ -50,19 +50,19 @@ schema-agnostic through the explicitly named raw APIs.
 
 ## Evidence
 
-- `tests/live_data_model_conformance.py` drives a composite scalar, structured,
+- `tests/integration/live_data_model_conformance.py` drives a composite scalar, structured,
   empty, malformed-vision, and large opaque fixture through the real HTTP
   runtime and ABI 1.2/V2 callback boundary with `one`. It verifies write
   copy-in and a 64 MiB RSS-growth bound.
-- `tests/test_data_model_conformance.py` covers `one`, `count`, and
+- `tests/unit/test_data_model_conformance.py` covers `one`, `count`, and
   `all_available` marshaling and a 2 MiB payload deterministically at the ABI
   call boundary, independent of transport scheduling.
-- `tests/test_data_model_conformance.py` deterministically checks binary copying,
+- `tests/unit/test_data_model_conformance.py` deterministically checks binary copying,
   empty/large payloads, source IDs, and optional timestamps in Python's ABI
   batch marshaling.
-- `tests/test_vision_contract.py` checks deterministic VSM1 encode/decode,
+- `tests/unit/test_vision_contract.py` checks deterministic VSM1 encode/decode,
   stable malformed-payload rejection, exact 1080p metadata, and bounded peak RSS.
-- `tests/test_typed_channels.py` covers natural values, immutable complex
+- `tests/unit/test_typed_channels.py` covers natural values, immutable complex
   views, batch metadata, unchanged-view passthrough, missing codecs, malformed
   payloads, direction errors, and wrong output values.
 - Rust ABI tests remain authoritative for native multi-source shape rejection,

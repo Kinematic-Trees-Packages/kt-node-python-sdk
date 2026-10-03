@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 from ktnode import Capability, UnsupportedCapabilityError
-from live_transport_conformance import RelayProbe, _write_fixture
+from .live_transport_conformance import RelayProbe, _write_fixture
 
 
 def test_same_relay_class_is_used_for_every_required_transport() -> None:

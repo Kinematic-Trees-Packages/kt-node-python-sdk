@@ -19,11 +19,11 @@ transport.
 
 ## Shared process fixture
 
-`tests/live_transport_conformance.py` uses one `RelayProbe` implementation for
+`tests/integration/live_transport_conformance.py` uses one `RelayProbe` implementation for
 both required transports. Only generated runtime JSON and the external test
 driver differ. The fixture proves scalar/blob bytes and the same opaque bytes
 used for typed vision payloads; vision encoding semantics are frozen separately
-by `tests/test_data_model_conformance.py`.
+by `tests/unit/test_data_model_conformance.py`.
 
 HTTP proves request routing, output observability, callback lifecycle, clean
 shutdown, and port release. KT SHM proves subscriber-before-publisher late

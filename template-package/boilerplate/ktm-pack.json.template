@@ -16,7 +16,7 @@
       "include": ["runtime"]
     },
     "source": {
-      "description": "Python tests and examples used to develop and validate the runtime package.",
+      "description": "Python project source and tests used to develop and validate the runtime package.",
       "include": ["source"]
     }
   },

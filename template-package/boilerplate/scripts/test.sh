@@ -47,7 +47,7 @@ project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 project_src="$project_root/src"
 export PYTHONPATH="$project_src${PYTHONPATH:+:$PYTHONPATH}"
 
-python3 -m py_compile "$project_src"/{{KTM_CREATE_MODULE_NAME}}/*.py "$project_root/examples/basic.py" "$project_root/tests/test_smoke.py"
+python3 -m py_compile "$project_src"/{{KTM_CREATE_MODULE_NAME}}/*.py "$project_root/tests/test_smoke.py"
 python3 - <<'PY'
 import kt.messages
 from kt.messages import *  # noqa: F403
@@ -57,8 +57,6 @@ assert {"codec_for", "registered_datatypes", "string_sample", "vision_sample"} <
 assert all(name in globals() for name in exports)
 print("kt-messages wildcard import passed")
 PY
-echo "Running generated example"
-python3 "$project_root/examples/basic.py"
 echo "Running generated unittest suite"
 python3 -m unittest discover -s "$project_root/tests" -p 'test*.py' -v
 echo "Python kt-node smoke passed"

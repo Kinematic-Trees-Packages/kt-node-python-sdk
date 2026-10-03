@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import argparse
 
-from ktnode import run
+import ktnode as kt
 
-from .robot import Robot
+from .process import Process
 
 
 def main() -> None:
@@ -12,7 +12,7 @@ def main() -> None:
     parser.add_argument("--package", required=True, help="node package manifest")
     parser.add_argument("--runtime", required=True, help="runtime configuration")
     args = parser.parse_args()
-    run(args.package, args.runtime, Robot())
+    kt.run(args.package, args.runtime, Process())
 
 
 if __name__ == "__main__":

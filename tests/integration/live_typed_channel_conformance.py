@@ -19,7 +19,7 @@ from ktnode import Runtime
 FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "completed_process" / "v1"
 sys.path.insert(0, str(FIXTURE / "src"))
 
-from passthrough import Robot  # noqa: E402
+from passthrough import Process  # noqa: E402
 
 
 def reserve_port() -> int:
@@ -114,7 +114,7 @@ def run(library: str) -> dict[str, object]:
     with tempfile.TemporaryDirectory(prefix="kt-python-typed-") as temporary:
         port = reserve_port()
         package, runtime_path = write_fixture(Path(temporary), port)
-        relay = Robot()
+        relay = Process()
         runtime = Runtime(package, runtime_path, relay, library_path=library)
         failure: list[BaseException] = []
 

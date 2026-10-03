@@ -97,7 +97,7 @@ class TemplateFailureStatusTests(unittest.TestCase):
         test_file = self.project / "tests" / "test_smoke.py"
         test_file.write_text(
             test_file.read_text().replace(
-                'self.assertEqual(Robot.__mro__[1].__name__, "Node")',
+                'self.assertEqual(Process.__mro__[1].__name__, "Node")',
                 'self.fail("KIN-14 deliberate assertion failure")',
             )
         )
@@ -113,21 +113,11 @@ class TemplateFailureStatusTests(unittest.TestCase):
         self.assertIn("ModuleNotFoundError", result.stdout)
         self.assertIn("deliberately_missing_kin14_dependency", result.stdout)
 
-    def test_example_failure_stops_before_test_suite(self) -> None:
-        example = self.project / "examples" / "basic.py"
-        example.write_text('raise RuntimeError("KIN-14 deliberate example failure")\n')
-        result = self.run_script()
-        self.assertNotEqual(result.returncode, 0, result.stdout)
-        self.assertIn("KIN-14 deliberate example failure", result.stdout)
-        self.assertIn("Running generated example", result.stdout)
-        self.assertNotIn("Running generated unittest suite", result.stdout)
-
     def test_outer_ktm_mutation_verifier_rejects_and_restores_failures(self) -> None:
         fake_ktm = self.root / "ktm"
         fake_ktm.write_text("#!/bin/sh\nshift\nexec bash scripts/test.sh\n")
         fake_ktm.chmod(0o755)
         original_test = (self.project / "tests" / "test_smoke.py").read_bytes()
-        original_example = (self.project / "examples" / "basic.py").read_bytes()
         logs = self.root / "mutation-logs"
         environment = os.environ.copy()
         environment.update(
@@ -160,8 +150,7 @@ class TemplateFailureStatusTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual((self.project / "tests" / "test_smoke.py").read_bytes(), original_test)
-        self.assertEqual((self.project / "examples" / "basic.py").read_bytes(), original_example)
-        self.assertEqual(len(list(logs.glob("*.log"))), 6)
+        self.assertEqual(len(list(logs.glob("*.log"))), 5)
 
     def test_packaged_boilerplate_is_the_only_template_authority(self) -> None:
         self.assertTrue((ROOT / "template-package" / "boilerplate" / "ktm-template.json").is_file())
@@ -179,7 +168,7 @@ class TemplateFailureStatusTests(unittest.TestCase):
             check=False,
         )
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertTrue((output / "runtime" / "src" / MODULE / "robot.py").is_file())
+        self.assertTrue((output / "runtime" / "src" / MODULE / "process.py").is_file())
         self.assertTrue((output / "runtime" / "src" / MODULE / "__main__.py").is_file())
         self.assertTrue((output / "runtime" / "runtime" / "node.package.json").is_file())
         self.assertTrue((output / "runtime" / "runtime" / "runtime.json").is_file())

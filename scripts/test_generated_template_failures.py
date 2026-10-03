@@ -10,7 +10,7 @@ import shutil
 import subprocess
 
 
-ASSERTION_NEEDLE = 'self.assertEqual(Robot.__mro__[1].__name__, "Node")'
+ASSERTION_NEEDLE = 'self.assertEqual(Process.__mro__[1].__name__, "Node")'
 STEP_TODO = 'raise NotImplementedError("TODO: implement step")'
 
 
@@ -50,11 +50,8 @@ def verify(args: argparse.Namespace) -> None:
     home = args.home.resolve()
     logs = args.log_dir.resolve()
     test_file = project / "tests" / "test_smoke.py"
-    example_file = project / "examples" / "basic.py"
     test_backup = test_file.with_suffix(".py.kin14-baseline")
-    example_backup = example_file.with_suffix(".py.kin14-baseline")
     shutil.copy2(test_file, test_backup)
-    shutil.copy2(example_file, example_backup)
 
     try:
         run_ktm(
@@ -100,14 +97,14 @@ def verify(args: argparse.Namespace) -> None:
         )
 
         test_file.write_text(test_backup.read_text())
-        robot_file = project / "src" / next((project / "src").iterdir()).name / "robot.py"
-        robot_backup = robot_file.with_suffix(".py.kin52-baseline")
-        shutil.copy2(robot_file, robot_backup)
+        process_file = project / "src" / next((project / "src").iterdir()).name / "process.py"
+        process_backup = process_file.with_suffix(".py.kin52-baseline")
+        shutil.copy2(process_file, process_backup)
         try:
-            source = robot_backup.read_text()
+            source = process_backup.read_text()
             if STEP_TODO not in source:
                 raise SystemExit("generated step TODO seam is missing")
-            robot_file.write_text(source.replace(STEP_TODO, "return NextStep.CONTINUE", 1))
+            process_file.write_text(source.replace(STEP_TODO, "return kt.NextStep.CONTINUE", 1))
             run_ktm(
                 ktm=args.ktm,
                 home=home,
@@ -118,23 +115,9 @@ def verify(args: argparse.Namespace) -> None:
                 diagnostics=("TODO: implement step",),
             )
         finally:
-            shutil.move(robot_backup, robot_file)
+            shutil.move(process_backup, process_file)
 
         shutil.copy2(test_backup, test_file)
-        example_file.write_text('raise RuntimeError("KIN-14 deliberate example failure")\n')
-        output = run_ktm(
-            ktm=args.ktm,
-            home=home,
-            platform=args.platform,
-            project=project,
-            log=logs / "example-failure.log",
-            expect_success=False,
-            diagnostics=("Running generated example", "KIN-14 deliberate example failure"),
-        )
-        if "Running generated unittest suite" in output:
-            raise SystemExit("unittest suite ran after the generated example failed")
-
-        shutil.copy2(example_backup, example_file)
         run_ktm(
             ktm=args.ktm,
             home=home,
@@ -146,8 +129,6 @@ def verify(args: argparse.Namespace) -> None:
     finally:
         if test_backup.exists():
             shutil.move(test_backup, test_file)
-        if example_backup.exists():
-            shutil.move(example_backup, example_file)
 
 
 def parse_args() -> argparse.Namespace:

@@ -19,13 +19,13 @@ ktm build
 ktm test
 ktm doctor
 ktm explain linking
-ktm pack --platform {{KTM_CREATE_PRIMARY_PLATFORM}}
+ktm pack
 ```
 
 Recommended first edit:
 
 ```text
-src/{{KTM_CREATE_MODULE_NAME}}/robot.py
+src/{{KTM_CREATE_MODULE_NAME}}/process.py
 ```
 
 The starter deliberately raises one actionable `NotImplementedError` from
@@ -36,6 +36,21 @@ The package and node manifests declare optional `example_input` and
 `example_output` channels using `kt/speech/string_sample`. The `step`
 method contains a commented typed `Get`/`Set` passthrough as API guidance,
 not as generated application behavior.
+
+## Why there is a `runtime/` directory
+
+The root `package.ktm.json` is the distributable package contract: identity,
+dependencies, build recipes, and package-level channel/config declarations.
+`runtime/node.package.json` is the node contract loaded by libkt at execution
+time, while `runtime/runtime.json` supplies runtime configuration. They repeat
+the channel/config contract intentionally because packaging and execution
+validate independently; `ktm create --from-manifest existing/package.ktm.json`
+keeps those two contract copies synchronized when starting from an existing
+process definition.
+
+`tests/test_smoke.py` is a structural starter test. It proves that `Process`
+uses the public SDK and that every lifecycle callback still has an explicit
+TODO; it does not pretend the unfinished process has application behavior.
 
 Run the process after implementing the TODOs:
 
@@ -61,6 +76,11 @@ Use the schema namespace to select a generated type, for example
 `vision_sample.ImageSample`, so common names such as `Vector3` cannot collide.
 
 You normally do **not** need to export `CPATH`, `LIBRARY_PATH`, `LD_LIBRARY_PATH`, `PKG_CONFIG_PATH`, or `CMAKE_PREFIX_PATH` yourself. KTM supplies those when you use `ktm dev`, `ktm build`, and `ktm test`.
+
+Python source is portable, but this process still depends on native `libkt`.
+KTM therefore retains the declared runtime environments. Bare `ktm pack`
+selects the environment declared by this generated project, so no platform flag
+is needed for the normal one-environment starter.
 
 If you are integrating a manual tool, inspect or export the KTM environment explicitly:
 

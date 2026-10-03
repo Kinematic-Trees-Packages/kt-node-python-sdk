@@ -9,7 +9,7 @@ from ktnode import Node
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 BOILERPLATE = ROOT / "template-package" / "boilerplate"
-ROBOT = BOILERPLATE / "src" / "{{KTM_CREATE_MODULE_NAME}}" / "robot.py.template"
+PROCESS = BOILERPLATE / "src" / "{{KTM_CREATE_MODULE_NAME}}" / "process.py.template"
 
 
 def _manifest(name: str) -> dict[str, object]:
@@ -21,12 +21,12 @@ def _manifest(name: str) -> dict[str, object]:
 
 
 def test_starter_exposes_all_four_explicit_callback_todos() -> None:
-    source = ROBOT.read_text(encoding="utf-8")
+    source = PROCESS.read_text(encoding="utf-8")
     tree = ast.parse(source)
-    robot = next(node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == "Robot")
+    process = next(node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == "Process")
     methods = {
         node.name: node
-        for node in robot.body
+        for node in process.body
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
     }
 
@@ -56,10 +56,10 @@ def test_starter_exposes_all_four_explicit_callback_todos() -> None:
 
 
 def test_step_guidance_is_typed_commented_and_not_executable() -> None:
-    source = ROBOT.read_text(encoding="utf-8")
-    assert '# value = Get(ctx, "example_input")' in source
-    assert '#     Set(ctx, "example_output", value)' in source
-    assert "# return NextStep.CONTINUE" in source
+    source = PROCESS.read_text(encoding="utf-8")
+    assert '# value = kt.Get(ctx, "example_input")' in source
+    assert '#     kt.Set(ctx, "example_output", value)' in source
+    assert "# return kt.NextStep.CONTINUE" in source
 
     tree = ast.parse(source)
     calls = [
@@ -71,6 +71,19 @@ def test_step_guidance_is_typed_commented_and_not_executable() -> None:
     assert "Set" not in calls
     assert "get_raw" not in source
     assert "set_raw" not in source
+
+
+def test_each_callback_todo_has_a_multiline_explanation() -> None:
+    source = PROCESS.read_text(encoding="utf-8")
+    paragraphs = {
+        "setup": ("setup runs once before processing begins", "return a NextStep value"),
+        "step": ("step contains one unit of process behavior", "next scheduling decision"),
+        "close": ("close runs once during terminal cleanup", "completed its cleanup"),
+        "config_update": ("config_update receives a proposed runtime configuration", "ConfigUpdateResult"),
+    }
+    for start, end in paragraphs.values():
+        assert start in source
+        assert end in source
 
 
 def test_package_and_node_manifests_declare_the_same_string_channels() -> None:
@@ -115,7 +128,7 @@ def test_runtime_manifest_is_complete_but_approach_neutral() -> None:
     assert "scheduling" not in runtime
 
 
-def test_public_entrypoint_runs_the_explicit_robot() -> None:
+def test_public_entrypoint_runs_the_explicit_process() -> None:
     source = (
         BOILERPLATE
         / "src"
@@ -127,9 +140,12 @@ def test_public_entrypoint_runs_the_explicit_robot() -> None:
     run_call = next(
         node
         for node in calls
-        if isinstance(node.func, ast.Name) and node.func.id == "run"
+        if isinstance(node.func, ast.Attribute)
+        and isinstance(node.func.value, ast.Name)
+        and node.func.value.id == "kt"
+        and node.func.attr == "run"
     )
     assert len(run_call.args) == 3
     assert isinstance(run_call.args[2], ast.Call)
     assert isinstance(run_call.args[2].func, ast.Name)
-    assert run_call.args[2].func.id == "Robot"
+    assert run_call.args[2].func.id == "Process"

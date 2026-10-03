@@ -4,13 +4,11 @@ This project was generated from the Kinematic Trees kt-node Python SDK boilerpla
 
 ## Project layout
 
-- `src/{{KTM_CREATE_MODULE_NAME}}/kt_node.py` — project-facing aliases for the installed public `ktnode` SDK.
-- `src/{{KTM_CREATE_MODULE_NAME}}/robot.py` — explicit `setup`, `step`, `close`, and `config_update` TODOs.
+- `src/{{KTM_CREATE_MODULE_NAME}}/process.py` — explicit `setup`, `step`, `close`, and `config_update` TODOs using one `import ktnode as kt` namespace.
 - `src/{{KTM_CREATE_MODULE_NAME}}/__main__.py` — public SDK entrypoint for the generated process.
 - `runtime/node.package.json` — example string channel contract.
 - `runtime/runtime.json` — approach-neutral runtime fixture with no transport or scheduling choice.
-- `examples/basic.py` — minimal example that constructs the generated `Robot` subclass.
-- `tests/test_smoke.py` — smoke test for the generated API and native runtime wiring.
+- `tests/test_smoke.py` — verifies that `Process` inherits the public SDK node and every required callback remains an explicit TODO.
 - `scripts/build.sh` — writes intentional `runtime/` and `source/` payloads under `$KTM_BUILD_OUTPUT`.
 - `ktm-pack.json` — editable package-owned pack mode definition.
 
@@ -27,10 +25,10 @@ ktm test --platform {{KTM_CREATE_PRIMARY_PLATFORM}}
 In project code:
 
 ```python
-from {{KTM_CREATE_MODULE_NAME}} import Robot
+from {{KTM_CREATE_MODULE_NAME}} import Process
 
-robot = Robot()
-print(type(robot).__name__)
+process = Process()
+print(type(process).__name__)
 ```
 
 After implementing the callback TODOs, run the process through the public SDK entrypoint:
@@ -41,7 +39,7 @@ python3 -m {{KTM_CREATE_MODULE_NAME}} \
   --runtime runtime/runtime.json
 ```
 
-Importing and structurally testing `Robot` does not load the native library.
+Importing and structurally testing `Process` does not load the native library.
 
 ## Manual Python workflow
 
@@ -50,7 +48,6 @@ Prefer KTM commands. If you need to run Python tooling directly, export the KTM 
 ```bash
 eval "$(ktm env --shell)"
 PYTHONPATH="${PWD}/src${PYTHONPATH:+:${PYTHONPATH}}" python3 -m unittest discover -s tests -p 'test*.py' -v
-python3 examples/basic.py
 ```
 
 ## Packing modes

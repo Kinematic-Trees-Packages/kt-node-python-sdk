@@ -9,26 +9,26 @@ Use this checklist before changing `ktm-pack.json`, `scripts/build.sh`, or packa
 - [ ] `scripts/build.sh` writes the runtime tree to `$KTM_BUILD_OUTPUT/runtime`.
 - [ ] The `compiled` list includes `runtime`.
 - [ ] Python bytecode/cache directories such as `__pycache__/` and `.pytest_cache/` are absent from the archive.
-- [ ] The archive contains `runtime/src/{{KTM_CREATE_MODULE_NAME}}/robot.py` and `runtime/src/{{KTM_CREATE_MODULE_NAME}}/__main__.py`.
+- [ ] The archive contains `runtime/src/{{KTM_CREATE_MODULE_NAME}}/process.py` and `runtime/src/{{KTM_CREATE_MODULE_NAME}}/__main__.py`.
 - [ ] The archive contains `runtime/runtime/node.package.json` and `runtime/runtime/runtime.json`.
 - [ ] The archive does not contain `docs/` by default.
 
 Run:
 
 ```bash
-ktm pack --platform {{KTM_CREATE_PRIMARY_PLATFORM}} --mode compiled
+ktm pack --mode compiled
 ```
 
 ### `compiled-source`
 
 - [ ] The `compiled-source` mode composes `compiled` and `source` lists.
-- [ ] The `source` list contains the editable project, tests, examples, and scripts.
+- [ ] The `source` list contains the editable project, tests, and scripts.
 - [ ] The `compiled-source` archive contains both the runtime payload and development source payload.
 
 Run:
 
 ```bash
-ktm pack --platform {{KTM_CREATE_PRIMARY_PLATFORM}} --mode compiled-source
+ktm pack --mode compiled-source
 ```
 ## Shared package safety checklist
 

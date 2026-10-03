@@ -1,7 +1,7 @@
-from ktnode import Context, NextStep, Node
+import ktnode as kt
 
 
-class Robot(Node):
-    def step(self, ctx: Context) -> NextStep:
+class Process(kt.Node):
+    def step(self, ctx: kt.Context) -> kt.NextStep:
         # Read and write named channels; runtime JSON chooses the transport.
-        return NextStep.STOP
+        return kt.NextStep.STOP

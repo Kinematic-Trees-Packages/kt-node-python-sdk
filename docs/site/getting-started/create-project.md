@@ -19,7 +19,7 @@ from kt.messages import *
 image_sample_module = vision_sample.ImageSample
 ```
 
-Edit the generated `Robot` subclass. Process logic must depend on public SDK types only:
+Edit the generated `Process` subclass. Process logic must depend on public SDK types only:
 
 --8<-- "examples/snippets/minimal_node.py"
 

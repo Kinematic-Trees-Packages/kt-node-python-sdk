@@ -11,7 +11,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "tests" / "fixtures" / "completed_process" / "v1"
 sys.path.insert(0, str(FIXTURE / "src"))
 
-from passthrough import Robot  # noqa: E402
+from passthrough import Process  # noqa: E402
 
 
 def test_completed_process_is_versioned_and_separate_from_public_starter() -> None:
@@ -29,24 +29,24 @@ def test_completed_process_is_versioned_and_separate_from_public_starter() -> No
     } == manifest["dataflow"]
     assert runtime["id"] == node["metadata"]["name"]
     assert runtime["package"] == "node.package.json"
-    completed = (FIXTURE / "src" / "passthrough" / "robot.py").read_text(encoding="utf-8")
+    completed = (FIXTURE / "src" / "passthrough" / "process.py").read_text(encoding="utf-8")
     starter = (
         ROOT
         / "template-package"
         / "boilerplate"
         / "src"
         / "{{KTM_CREATE_MODULE_NAME}}"
-        / "robot.py.template"
+        / "process.py.template"
     ).read_text(encoding="utf-8")
-    assert 'Get(ctx, "example_input")' in completed
-    assert 'Set(ctx, "example_output", value)' in completed
-    assert '# value = Get(ctx, "example_input")' in starter
-    assert '\n        value = Get(ctx, "example_input")' not in starter
+    assert 'kt.Get(ctx, "example_input")' in completed
+    assert 'kt.Set(ctx, "example_output", value)' in completed
+    assert '# value = kt.Get(ctx, "example_input")' in starter
+    assert '\n        value = kt.Get(ctx, "example_input")' not in starter
 
 
 def test_completed_process_implements_all_lifecycle_callbacks() -> None:
-    robot = Robot()
-    assert robot.setup(None) is NextStep.CONTINUE
+    process = Process()
+    assert process.setup(None) is NextStep.CONTINUE
     update = ConfigUpdate(
         old_revision=4,
         new_revision=5,
@@ -56,8 +56,8 @@ def test_completed_process_implements_all_lifecycle_callbacks() -> None:
         changed_paths=["/mode"],
         flags=0,
     )
-    assert robot.config_update(None, update) is ConfigUpdateResult.ACCEPT
-    assert robot.config_updates == [update]
-    assert robot.close(None) is NextStep.STOP
-    assert robot.close_count == 1
-    assert robot.calls == ["setup", "config_update", "close"]
+    assert process.config_update(None, update) is ConfigUpdateResult.ACCEPT
+    assert process.config_updates == [update]
+    assert process.close(None) is NextStep.STOP
+    assert process.close_count == 1
+    assert process.calls == ["setup", "config_update", "close"]

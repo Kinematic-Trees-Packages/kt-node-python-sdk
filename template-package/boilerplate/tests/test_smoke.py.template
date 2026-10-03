@@ -1,40 +1,40 @@
 import unittest
 
-from {{KTM_CREATE_MODULE_NAME}} import Robot
-from ktnode import ConfigUpdate
+from {{KTM_CREATE_MODULE_NAME}} import Process
+import ktnode as kt
 
 
-class RobotSmokeTests(unittest.TestCase):
-    def test_robot_uses_public_sdk_node(self) -> None:
-        self.assertEqual(Robot.__mro__[1].__name__, "Node")
+class ProcessSmokeTests(unittest.TestCase):
+    def test_process_uses_public_sdk_node(self) -> None:
+        self.assertEqual(Process.__mro__[1].__name__, "Node")
 
     def test_all_callback_todos_are_explicit(self) -> None:
-        robot = Robot()
+        process = Process()
         with self.assertRaisesRegex(
             NotImplementedError,
             "TODO: implement setup",
             msg="TODO: implement setup",
         ):
-            robot.setup(None)
+            process.setup(None)
         with self.assertRaisesRegex(
             NotImplementedError,
             "TODO: implement step",
             msg="TODO: implement step",
         ):
-            robot.step(None)
+            process.step(None)
         with self.assertRaisesRegex(
             NotImplementedError,
             "TODO: implement close",
             msg="TODO: implement close",
         ):
-            robot.close(None)
-        update = ConfigUpdate(0, 1, [], {}, {}, [], 0)
+            process.close(None)
+        update = kt.ConfigUpdate(0, 1, [], {}, {}, [], 0)
         with self.assertRaisesRegex(
             NotImplementedError,
             "TODO: implement config_update",
             msg="TODO: implement config_update",
         ):
-            robot.config_update(None, update)
+            process.config_update(None, update)
 
 
 if __name__ == "__main__":

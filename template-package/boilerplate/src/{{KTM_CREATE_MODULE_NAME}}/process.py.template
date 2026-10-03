@@ -1,0 +1,41 @@
+from kt.messages import *  # noqa: F403
+import ktnode as kt
+
+
+class Process(kt.Node):
+    """Approach-neutral process skeleton. Replace each explicit TODO."""
+
+    def setup(self, ctx: kt.Context) -> kt.NextStep:
+        # setup runs once before processing begins. Initialize process-owned state,
+        # validate required configuration, and acquire resources that later callbacks
+        # need; return a NextStep value that tells the runtime whether to continue.
+        raise NotImplementedError("TODO: implement setup")
+
+    def step(self, ctx: kt.Context) -> kt.NextStep:
+        # step contains one unit of process behavior and may be called repeatedly by
+        # the configured scheduler. Read declared inputs, update application state,
+        # publish declared outputs, and return the next scheduling decision.
+        # value = kt.Get(ctx, "example_input")
+        # if value is not None:
+        #     kt.Set(ctx, "example_output", value)
+        # return kt.NextStep.CONTINUE
+        raise NotImplementedError("TODO: implement step")
+
+    def close(self, ctx: kt.Context) -> kt.NextStep:
+        # close runs once during terminal cleanup after setup has succeeded. Release
+        # process-owned resources, flush any final state, and return STOP when the
+        # process has completed its cleanup without scheduling more work.
+        raise NotImplementedError("TODO: implement close")
+
+    def config_update(
+        self, ctx: kt.Context, update: kt.ConfigUpdate
+    ) -> kt.ConfigUpdateResult:
+        # config_update receives a proposed runtime configuration transition. Inspect
+        # the old/new revisions and patch, update process state atomically, then accept,
+        # reject recoverably, reject fatally, or stop through ConfigUpdateResult.
+        raise NotImplementedError("TODO: implement config_update")
+
+    @staticmethod
+    def status(runtime: kt.Runtime) -> str:
+        info = runtime.info
+        return f"kt-node ABI {info.abi_major}.{info.abi_minor} loaded via V{info.creation_api}"

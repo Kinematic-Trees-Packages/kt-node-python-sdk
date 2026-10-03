@@ -109,7 +109,7 @@ class RuntimePackageContractTests(unittest.TestCase):
             / "boilerplate"
             / "src"
             / "{{KTM_CREATE_MODULE_NAME}}"
-            / "robot.py.template",
+            / "process.py.template",
         ]
         for path in paths:
             with self.subTest(path=path.relative_to(ROOT)):

@@ -23,6 +23,11 @@ def test_repository_has_one_template_authority() -> None:
     assert (ROOT / "template-package" / "boilerplate" / "ktm-template.json").is_file()
 
 
+def test_coverage_runner_excludes_host_only_abi_contract() -> None:
+    coverage_script = (ROOT / "scripts" / "coverage.sh").read_text(encoding="utf-8")
+    assert "--ignore=tests/contract/test_contract_matrix.py" in coverage_script
+
+
 def test_wheel_contains_only_public_sdk_package(tmp_path: pathlib.Path) -> None:
     wheel = build_wheel(ROOT, tmp_path)
     with zipfile.ZipFile(wheel) as archive:

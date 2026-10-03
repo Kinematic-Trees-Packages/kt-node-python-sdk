@@ -6,7 +6,9 @@ cd "$repo_root"
 mkdir -p build/coverage
 
 python -m coverage erase
-python -m coverage run -m pytest -q tests
+python -m coverage run -m pytest -q \
+  --ignore=tests/contract/test_contract_matrix.py \
+  tests
 python -m coverage report
 python -m coverage xml
 python -m coverage json

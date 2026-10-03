@@ -51,3 +51,46 @@ def test_contract_mappings_are_immutable(tmp_path):
     )
     with pytest.raises(TypeError):
         index.inputs["y"] = index.input("x")
+
+
+@pytest.mark.parametrize(
+    "document, message",
+    [
+        ("not json", "cannot read node package"),
+        ("[]", "must be a JSON object"),
+        (json.dumps({}), "dataflow must be an object"),
+        (json.dumps({"dataflow": {"inputs": {}, "outputs": []}}), "inputs must be an array"),
+        (json.dumps({"dataflow": {"inputs": [1], "outputs": []}}), "inputs\\[0\\] must be an object"),
+        (
+            json.dumps(
+                {
+                    "dataflow": {
+                        "inputs": [{"name": "x", "datatype": "kt/a", "required": "yes"}],
+                        "outputs": [],
+                    }
+                }
+            ),
+            "required must be boolean",
+        ),
+    ],
+)
+def test_index_rejects_invalid_document_shapes(tmp_path, document, message):
+    package = tmp_path / "node.package.json"
+    package.write_text(document, encoding="utf-8")
+    with pytest.raises(ChannelContractError, match=message):
+        ChannelContractIndex.from_package(package)
+
+
+def test_index_reports_both_wrong_directions(tmp_path):
+    index = ChannelContractIndex.from_package(
+        write_package(
+            tmp_path,
+            inputs=[{"name": "request", "datatype": "kt/a"}],
+            outputs=[{"name": "response", "datatype": "kt/a"}],
+        )
+    )
+    assert index.outputs["response"].name == "response"
+    with pytest.raises(UnknownChannelError, match="input, not an output"):
+        index.output("request")
+    with pytest.raises(UnknownChannelError, match="unknown input channel"):
+        index.input("missing")

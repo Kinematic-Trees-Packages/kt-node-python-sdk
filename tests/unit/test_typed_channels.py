@@ -1,4 +1,5 @@
 import ctypes
+import builtins
 
 import pytest
 
@@ -155,3 +156,34 @@ def test_typed_errors_are_channel_and_datatype_specific():
     )
     with pytest.raises(PayloadDecodeError, match="channel 'in'.*kt/speech/string_sample"):
         Get(malformed, "in")
+
+
+def test_raw_compatibility_aliases_and_empty_native_batch():
+    class EmptyBatchLib(FakeTypedLib):
+        def kt_context_read(self, _context, _channel, _options, _out_batch, _out_error):
+            return abi.KT_STATUS_OK
+
+    channels = ChannelContractIndex(
+        {"in": ChannelContract("in", "kt/speech/string_sample", "input")},
+        {"out": ChannelContract("out", "kt/speech/string_sample", "output")},
+    )
+    lib = EmptyBatchLib()
+    ctx = Context(lib, ctypes.pointer(abi.KtAlgorithmContext()), channels)
+    assert ctx.get("in") == []
+    ctx.set("out", b"one")
+    ctx.set_from("out", "source", b"two")
+    assert lib.writes == [("out", None, b"one"), ("out", "source", b"two")]
+
+
+def test_typed_access_reports_missing_messages_package(monkeypatch):
+    original_import = builtins.__import__
+
+    def missing_kt_messages(name, *args, **kwargs):
+        if name == "kt.messages":
+            raise ImportError("not installed")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", missing_kt_messages)
+    ctx, _lib = context(inputs={"in": "kt/speech/string_sample"}, outputs={})
+    with pytest.raises(MissingCodecError, match="install kt-messages"):
+        Get(ctx, "in")

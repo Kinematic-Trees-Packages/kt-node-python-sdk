@@ -4,6 +4,7 @@ import resource
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from ktnode.vision import decode_image_sample_summary, encode_image_sample, make_rgb_image, vision_sample_schema
 
@@ -85,6 +86,44 @@ class VisionContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             make_rgb_image(b"abc", source="camera", frame_number=-1, width=1, height=1)
 
+    def test_array_input_infers_shape_timestamp_and_encodes(self):
+        class Array:
+            shape = (1, 2, 3)
+
+            @staticmethod
+            def tobytes():
+                return b"abcdef"
+
+        with mock.patch("ktnode.vision.time.time_ns", return_value=456):
+            image = make_rgb_image(Array(), source="camera", frame_number=1)
+        self.assertEqual((image.height, image.width, image.channels), (1, 2, 3))
+        self.assertEqual(image.captured_unix_ns, 456)
+        self.assertEqual(image.to_bytes(), encode_image_sample(image))
+
+    def test_array_and_raw_input_validation_branches(self):
+        class FlatArray:
+            shape = (2, 3)
+
+            @staticmethod
+            def tobytes():
+                return b"abcdef"
+
+        class FourChannelArray:
+            shape = (1, 1, 4)
+
+            @staticmethod
+            def tobytes():
+                return b"abcd"
+
+        with self.assertRaisesRegex(ValueError, "expects RGB"):
+            make_rgb_image(b"abc", source="camera", frame_number=0, width=1, height=1, color_order="bgr")
+        with self.assertRaisesRegex(ValueError, "shape"):
+            make_rgb_image(FlatArray(), source="camera", frame_number=0)
+        with self.assertRaisesRegex(ValueError, "exactly 3 channels"):
+            make_rgb_image(FourChannelArray(), source="camera", frame_number=0)
+        with self.assertRaisesRegex(ValueError, "data length"):
+            make_rgb_image(b"too short", source="camera", frame_number=0, width=2, height=2)
+
     def test_schema_discovery_uses_composed_env_path(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -100,6 +139,36 @@ class VisionContractTests(unittest.TestCase):
                     os.environ.pop("KT_NODE_SCHEMA_PATH", None)
                 else:
                     os.environ["KT_NODE_SCHEMA_PATH"] = old
+
+    def test_schema_discovery_skips_missing_roots_and_reports_absence(self):
+        with tempfile.TemporaryDirectory() as first, tempfile.TemporaryDirectory() as second:
+            root = Path(second)
+            schema = root / "vision" / "vision_sample.fbs"
+            schema.parent.mkdir()
+            schema.write_text("root_type ImageSample;\n")
+            with mock.patch.dict(
+                os.environ,
+                {"KT_NODE_SCHEMA_PATH": os.pathsep.join((first, second))},
+                clear=False,
+            ):
+                self.assertEqual(vision_sample_schema(), schema)
+            with mock.patch.dict(os.environ, {"KT_NODE_SCHEMA_PATH": first}, clear=False):
+                with self.assertRaises(FileNotFoundError):
+                    vision_sample_schema()
+
+    def test_decode_wraps_generated_binding_failures(self):
+        class BrokenImageSample:
+            class ImageSample:
+                @staticmethod
+                def ImageSampleBufferHasIdentifier(_payload, _offset):
+                    raise TypeError("broken generated binding")
+
+        with mock.patch(
+            "ktnode.vision._generated_modules",
+            return_value=(BrokenImageSample, object(), object(), object()),
+        ):
+            with self.assertRaisesRegex(ValueError, "malformed VSM1"):
+                decode_image_sample_summary(b"payload")
 
 
 if __name__ == "__main__":

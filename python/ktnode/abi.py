@@ -1,4 +1,4 @@
-"""Low-level ctypes binding for the kt-node native library, libkt_node.
+"""Low-level ctypes binding for the stable KT native library, libkt.
 
 This module is intentionally private-ish: node authors should use
 `ktnode.runtime`, not call these functions directly.
@@ -9,7 +9,6 @@ from __future__ import annotations
 import ctypes
 import ctypes.util
 import os
-from pathlib import Path
 
 KT_ABI_VERSION_MAJOR = 1
 KT_ABI_VERSION_MINOR = 2
@@ -212,26 +211,13 @@ def view_to_bytes(view: KtBytesView) -> bytes:
 def find_library(explicit: str | None = None) -> str:
     if explicit:
         return explicit
-    for variable in ("KT_NODE_LIB",):
-        env = os.environ.get(variable)
-        if env:
-            return env
-    for root in os.environ.get("KT_NODE_PACKAGE_ROOTS", "").split(os.pathsep):
-        if not root:
-            continue
-        candidates = [
-            Path(root) / "lib" / "libkt_node.so",
-            Path(root) / "lib" / "libkt_node.so.1",
-        ]
-        candidates.extend(Path(root).glob("dist/libkt_node/*/*/lib/libkt_node.so"))
-        candidates.extend(Path(root).glob("dist/libkt_node/*/*/lib/libkt_node.so.1"))
-        for candidate in candidates:
-            if candidate.exists():
-                return str(candidate)
-    found = ctypes.util.find_library("kt_node") or ctypes.util.find_library("ktnode")
+    configured = os.environ.get("LIBKT_PATH")
+    if configured:
+        return configured
+    found = ctypes.util.find_library("kt")
     if found:
         return found
-    return "libkt_node.so"
+    return "libkt.so"
 
 
 def load_library(path: str | None = None) -> ctypes.CDLL:

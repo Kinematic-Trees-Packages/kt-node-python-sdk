@@ -60,7 +60,7 @@ class TemplateFailureStatusTests(unittest.TestCase):
         self.include.mkdir()
         self.library.mkdir()
         (self.include / "kt_node.h").write_text("/* fixture */\n")
-        (self.library / "libkt_node.so").write_bytes(b"")
+        (self.library / "libkt.so").write_bytes(b"")
 
     def tearDown(self) -> None:
         self.temporary.cleanup()

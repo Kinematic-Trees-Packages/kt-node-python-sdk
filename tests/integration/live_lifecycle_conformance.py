@@ -1,7 +1,7 @@
 """Real-library lifecycle, ownership, error, and concurrency conformance.
 
 This is intentionally a standalone acceptance fixture rather than a mock-based
-unit test. It creates valid package/runtime inputs, loads libkt_node through the
+unit test. It creates valid package/runtime inputs, loads libkt through the
 public Python SDK, and exercises every documented terminal path.
 """
 
@@ -105,7 +105,7 @@ def _write_fixture(directory: Path) -> tuple[str, str]:
     package.write_text(
         json.dumps(
             {
-                "schemaVersion": "4",
+                "schemaVersion": "3",
                 "metadata": {"name": "python-lifecycle-conformance"},
                 "dataflow": {
                     "inputs": [{"name": "in", "datatype": "kt/common/int64_value"}],

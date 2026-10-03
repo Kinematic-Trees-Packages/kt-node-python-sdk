@@ -1,7 +1,9 @@
 import ctypes
 import gc
+import os
 import unittest
 import weakref
+from unittest import mock
 
 from ktnode import Capability, ChannelContractIndex, ClosedResourceError, NextStep, Node, UnsupportedCapabilityError, abi
 from ktnode.runtime import Context, KtError, RuntimeInfo, _check_status
@@ -23,6 +25,20 @@ class FakeLib:
 
 
 class RuntimeContractTests(unittest.TestCase):
+    def test_libkt_discovery_uses_only_new_artifact_identity(self):
+        with mock.patch.dict(os.environ, {"LIBKT_PATH": "/runtime/lib/libkt.so"}, clear=True):
+            self.assertEqual(abi.find_library(), "/runtime/lib/libkt.so")
+        with mock.patch.dict(os.environ, {}, clear=True), mock.patch.object(
+            abi.ctypes.util, "find_library", return_value="libkt.so.1"
+        ) as finder:
+            self.assertEqual(abi.find_library(), "libkt.so.1")
+            finder.assert_called_once_with("kt")
+        with mock.patch.dict(os.environ, {}, clear=True), mock.patch.object(
+            abi.ctypes.util, "find_library", return_value=None
+        ):
+            self.assertEqual(abi.find_library(), "libkt.so")
+        self.assertEqual(abi.find_library("/explicit/libkt.so"), "/explicit/libkt.so")
+
     def test_string_view_keeps_utf8_bytes_and_length(self):
         view, keepalive = abi.string_view("video.rgb")
         self.assertEqual(view.length, len(keepalive))

@@ -2,9 +2,9 @@
 
 ## Native library discovery
 
-**Symptom:** `Runtime` raises an error loading `libkt_node.so` or one of its native dependencies.
+**Symptom:** `Runtime` raises an error loading `libkt.so` or one of its native dependencies.
 
-Use `ktm dev` or `ktm test`, or evaluate `ktm env --shell` before manual Python execution. `KTM_KT_NODE_LIBRARY` may point to an explicit library for SDK testing. Do not copy a single `.so` without its declared dependency closure.
+Use `ktm dev` or `ktm test`, or evaluate `ktm env --shell` before manual Python execution. `LIBKT_PATH` may point to an explicit library for SDK testing. Do not copy a single `.so` without its declared dependency closure.
 
 ## ABI mismatch
 

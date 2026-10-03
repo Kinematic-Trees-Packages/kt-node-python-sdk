@@ -2,7 +2,7 @@
 
 This document records the Python SDK's live conformance boundary for the
 frozen KT Node ABI 1.2 contract. The acceptance fixture is
-`tests/integration/live_lifecycle_conformance.py`; it loads the real `libkt_node` and
+`tests/integration/live_lifecycle_conformance.py`; it loads the real `libkt` and
 does not substitute Python mocks for runtime behavior.
 
 ## Proven lifecycle matrix

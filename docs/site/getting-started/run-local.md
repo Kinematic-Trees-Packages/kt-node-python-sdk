@@ -17,6 +17,6 @@ eval "$(ktm env --shell)"
 python -m pytest
 ```
 
-If manual execution cannot find `libkt_node`, return to `ktm dev` or inspect the composed environment with `ktm explain linking`.
+If manual execution cannot find `libkt`, return to `ktm dev` or inspect the composed environment with `ktm explain linking`.
 
 The repository validates this exact registry-backed path in a disposable directory with `scripts/docs_quickstart_smoke.sh`.

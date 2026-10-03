@@ -25,7 +25,7 @@ require_kt_node_build_env() {
     echo "kt-node header kt_node.h not found in CPATH; run through KTM so kt-node includePaths are composed" >&2
     missing=1
   fi
-  if ! find_in_path_list LIBRARY_PATH libkt_node.so && ! find_in_path_list LIBRARY_PATH libkt_node.a && ! find_in_path_list LD_LIBRARY_PATH libkt_node.so; then
+  if ! find_in_path_list LIBRARY_PATH libkt.so && ! find_in_path_list LIBRARY_PATH libkt.a && ! find_in_path_list LD_LIBRARY_PATH libkt.so; then
     echo "kt-node library not found in LIBRARY_PATH/LD_LIBRARY_PATH; run through KTM so kt-node libraryPaths are composed" >&2
     missing=1
   fi

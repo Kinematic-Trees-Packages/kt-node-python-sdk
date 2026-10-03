@@ -3,7 +3,7 @@
 Your Python class implements an algorithm. The native runtime owns scheduling, transport threads, channel buffers, configuration, and shutdown.
 
 ```text
-package/runtime JSON → libkt_node → ctypes ABI → ktnode.Runtime → your Node
+package/runtime JSON → libkt → ctypes ABI → ktnode.Runtime → your Node
 ```
 
 `Runtime` negotiates the loaded ABI and selects V2 construction for ABI 1.2 or later when available. V1 remains the compatibility fallback.

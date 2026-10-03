@@ -49,7 +49,14 @@ class TemplateFailureStatusTests(unittest.TestCase):
             "class Context: pass\n"
             "class Node: pass\n"
             "class Runtime: pass\n"
-            "class NextStep:\n    STOP = object()\n"
+            "class ConfigUpdate:\n"
+            "    def __init__(self, *args): pass\n"
+            "class ConfigUpdateResult: pass\n"
+            "class NextStep:\n"
+            "    CONTINUE = object()\n"
+            "    STOP = object()\n"
+            "def Get(*args, **kwargs): return None\n"
+            "def Set(*args, **kwargs): return None\n"
         )
         self.include.mkdir()
         self.library.mkdir()
@@ -82,7 +89,7 @@ class TemplateFailureStatusTests(unittest.TestCase):
         result = self.run_script()
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("Running generated unittest suite", result.stdout)
-        self.assertIn("Ran 1 test", result.stdout)
+        self.assertIn("Ran 2 tests", result.stdout)
         self.assertIn("OK", result.stdout)
         self.assertIn("kt-messages wildcard import passed", result.stdout)
 
@@ -159,6 +166,24 @@ class TemplateFailureStatusTests(unittest.TestCase):
     def test_packaged_boilerplate_is_the_only_template_authority(self) -> None:
         self.assertTrue((ROOT / "template-package" / "boilerplate" / "ktm-template.json").is_file())
         self.assertFalse((ROOT / "boilerplate").exists())
+
+    def test_build_outputs_runtime_manifests_and_editable_source(self) -> None:
+        output = self.root / "build-output"
+        result = subprocess.run(
+            ["bash", "scripts/build.sh"],
+            cwd=self.project,
+            env={**os.environ, "KTM_BUILD_OUTPUT": str(output)},
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertTrue((output / "runtime" / "src" / MODULE / "robot.py").is_file())
+        self.assertTrue((output / "runtime" / "src" / MODULE / "__main__.py").is_file())
+        self.assertTrue((output / "runtime" / "runtime" / "node.package.json").is_file())
+        self.assertTrue((output / "runtime" / "runtime" / "runtime.json").is_file())
+        self.assertTrue((output / "source" / "tests" / "test_smoke.py").is_file())
 
 
 if __name__ == "__main__":

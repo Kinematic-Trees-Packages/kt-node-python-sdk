@@ -5,10 +5,13 @@ This project was generated from the Kinematic Trees kt-node Python SDK boilerpla
 ## Project layout
 
 - `src/{{KTM_CREATE_MODULE_NAME}}/kt_node.py` — project-facing aliases for the installed public `ktnode` SDK.
-- `src/{{KTM_CREATE_MODULE_NAME}}/robot.py` — project-facing `Robot` class. Start custom behavior here.
+- `src/{{KTM_CREATE_MODULE_NAME}}/robot.py` — explicit `setup`, `step`, `close`, and `config_update` TODOs.
+- `src/{{KTM_CREATE_MODULE_NAME}}/__main__.py` — public SDK entrypoint for the generated process.
+- `runtime/node.package.json` — example string channel contract.
+- `runtime/runtime.json` — approach-neutral runtime fixture with no transport or scheduling choice.
 - `examples/basic.py` — minimal example that constructs the generated `Robot` subclass.
 - `tests/test_smoke.py` — smoke test for the generated API and native runtime wiring.
-- `scripts/build.sh` — writes the intentional package payload under `$KTM_BUILD_OUTPUT/python`.
+- `scripts/build.sh` — writes intentional `runtime/` and `source/` payloads under `$KTM_BUILD_OUTPUT`.
 - `ktm-pack.json` — editable package-owned pack mode definition.
 
 ## Using the SDK
@@ -30,7 +33,15 @@ robot = Robot()
 print(type(robot).__name__)
 ```
 
-Construct `ktnode.Runtime` with the generated package/runtime JSON when running the process. Importing and structurally testing `Robot` does not load the native library.
+After implementing the callback TODOs, run the process through the public SDK entrypoint:
+
+```bash
+python3 -m {{KTM_CREATE_MODULE_NAME}} \
+  --package runtime/node.package.json \
+  --runtime runtime/runtime.json
+```
+
+Importing and structurally testing `Robot` does not load the native library.
 
 ## Manual Python workflow
 
@@ -44,8 +55,8 @@ python3 examples/basic.py
 
 ## Packing modes
 
-- `compiled` packages the `python/` runtime tree. Python source is the runtime artifact, so this includes the module source used at runtime.
-- `compiled-source` composes `compiled` plus an empty default `source` list. Add entries to the `source` list only when they should become package payload.
+- `compiled` packages the `runtime/` tree. Python source is the runtime artifact, so this includes the module source and runtime manifests.
+- `compiled-source` composes `runtime/` with the editable `source/` tree used for development and validation.
 
 Docs are copied into generated projects for humans/agents, but are intentionally not packaged by default.
 ## Dependency ownership / eject review
@@ -64,7 +75,7 @@ tar -tzf _pack/*/{{KTM_CREATE_PRIMARY_PLATFORM}}/*.tar.gz | sort
 
 Expected defaults:
 
-- `compiled`: only the `python/` runtime payload root.
-- `compiled-source`: the same `python/` runtime payload root by default; the separate `source` list is empty unless you intentionally add entries.
+- `compiled`: only the `runtime/` payload root.
+- `compiled-source`: the `runtime/` and `source/` payload roots.
 - `docs/`: present in the generated project folder, absent from archives by default.
 - `deps/`, `.ktrees/`, KTM store paths, and kt-node dependency libraries: absent from normal pack archives.

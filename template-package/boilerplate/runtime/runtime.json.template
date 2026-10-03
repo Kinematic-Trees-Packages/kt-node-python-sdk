@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "4",
+  "id": "{{KTM_CREATE_PACKAGE_NAME}}",
+  "package": "node.package.json",
+  "channelDefaults": [],
+  "channelOverrides": {},
+  "config": {}
+}

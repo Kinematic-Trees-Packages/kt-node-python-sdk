@@ -28,6 +28,23 @@ Recommended first edit:
 src/{{KTM_CREATE_MODULE_NAME}}/robot.py
 ```
 
+The starter deliberately raises one actionable `NotImplementedError` from
+each ABI callback. Fill in `setup`, `step`, `close`, and
+`config_update`; do not rely on inherited default behavior.
+
+The package and node manifests declare optional `example_input` and
+`example_output` channels using `kt/speech/string_sample`. The `step`
+method contains a commented typed `Get`/`Set` passthrough as API guidance,
+not as generated application behavior.
+
+Run the process after implementing the TODOs:
+
+```bash
+python -m {{KTM_CREATE_MODULE_NAME}} \
+  --package runtime/node.package.json \
+  --runtime runtime/runtime.json
+```
+
 ## Dependency model
 
 The generated `package.ktm.json` declares the Python SDK and

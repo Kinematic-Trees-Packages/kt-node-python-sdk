@@ -1,11 +1,24 @@
 import unittest
 
 from {{KTM_CREATE_MODULE_NAME}} import Robot
+from ktnode import ConfigUpdate
 
 
 class RobotSmokeTests(unittest.TestCase):
     def test_robot_uses_public_sdk_node(self) -> None:
         self.assertEqual(Robot.__mro__[1].__name__, "Node")
+
+    def test_all_callback_todos_are_explicit(self) -> None:
+        robot = Robot()
+        with self.assertRaisesRegex(NotImplementedError, "TODO: implement setup"):
+            robot.setup(None)
+        with self.assertRaisesRegex(NotImplementedError, "TODO: implement step"):
+            robot.step(None)
+        with self.assertRaisesRegex(NotImplementedError, "TODO: implement close"):
+            robot.close(None)
+        update = ConfigUpdate(0, 1, [], {}, {}, [], 0)
+        with self.assertRaisesRegex(NotImplementedError, "TODO: implement config_update"):
+            robot.config_update(None, update)
 
 
 if __name__ == "__main__":

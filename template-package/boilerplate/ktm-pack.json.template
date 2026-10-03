@@ -36,7 +36,11 @@
     }
   },
   "assertions": {
-    "required": ["runtime/src"],
+    "required": [
+      "runtime/src",
+      "runtime/runtime/node.package.json",
+      "runtime/runtime/runtime.json"
+    ],
     "forbidden": ["**/__pycache__/**", "**/*.py[cod]", "**/.env", "**/*.pem"]
   },
   "limits": {"maximumFileBytes": 52428800, "maximumArchiveBytes": 209715200}

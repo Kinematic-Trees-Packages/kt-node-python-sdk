@@ -1,12 +1,36 @@
 from kt.messages import *  # noqa: F403
-from ktnode import Context, Node, NextStep, Runtime
+from ktnode import (
+    ConfigUpdate,
+    ConfigUpdateResult,
+    Context,
+    Get,
+    Node,
+    NextStep,
+    Runtime,
+    Set,
+)
 
 
 class Robot(Node):
-    """Project-facing node implementation. Add robot behavior here."""
+    """Approach-neutral process skeleton. Replace each explicit TODO."""
+
+    def setup(self, ctx: Context) -> NextStep:
+        raise NotImplementedError("TODO: implement setup")
 
     def step(self, ctx: Context) -> NextStep:
-        return NextStep.STOP
+        # value = Get(ctx, "example_input")
+        # if value is not None:
+        #     Set(ctx, "example_output", value)
+        # return NextStep.CONTINUE
+        raise NotImplementedError("TODO: implement step")
+
+    def close(self, ctx: Context) -> NextStep:
+        raise NotImplementedError("TODO: implement close")
+
+    def config_update(
+        self, ctx: Context, update: ConfigUpdate
+    ) -> ConfigUpdateResult:
+        raise NotImplementedError("TODO: implement config_update")
 
     @staticmethod
     def status(runtime: Runtime) -> str:

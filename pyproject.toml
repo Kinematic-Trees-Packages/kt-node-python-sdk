@@ -12,7 +12,7 @@ license = "LicenseRef-Proprietary"
 [project.optional-dependencies]
 vision = ["numpy>=1.24"]
 test = [
-  "coverage[toml]==7.16.2",
+  "coverage[toml]==7.10.7",
   "flatbuffers==24.12.23",
   "mypy==1.18.2",
   "numpy>=1.24",

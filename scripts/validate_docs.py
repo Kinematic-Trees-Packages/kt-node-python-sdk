@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import importlib
-import inspect
 import sys
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -19,14 +18,7 @@ SITE_URL_PATH = "/python/v0.2/"
 
 def _public_symbols() -> set[str]:
     package = importlib.import_module("ktnode")
-    names = set(package.__all__)
-    vision = importlib.import_module("ktnode.vision")
-    names.update(
-        name
-        for name in ("make_rgb_image", "encode_image_sample", "decode_image_sample_summary")
-        if inspect.isfunction(getattr(vision, name, None))
-    )
-    return names
+    return set(package.__all__)
 
 
 def _target_path(page: Path, href: str) -> tuple[Path, str]:

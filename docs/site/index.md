@@ -41,7 +41,7 @@ KTM resolves the native runtime, composes its environment, and creates an editab
 - Python 3.9–3.12 syntax and unit coverage
 - KT Node C ABI 1.2, with V2 construction and V1 fallback
 - HTTP and KT SHM transport slices
-- Opaque-byte data flow and typed RGB vision helper
+- Typed channel data through generated immutable `kt.messages` views
 - KTM `compiled` and `compiled-source` packaging modes
 
 [Check exact compatibility and limitations](compatibility.md){ .md-button }

@@ -14,7 +14,6 @@ PUBLIC_WHEEL_FILES = {
     "ktnode/errors.py",
     "ktnode/py.typed",
     "ktnode/runtime.py",
-    "ktnode/vision.py",
 }
 
 

@@ -9,7 +9,7 @@ This document is the ownership contract for the Python SDK repository.
 - Python import package: `ktnode`
 - Source authority: `python/ktnode`
 - Wheel baseline: `ktnode/__init__.py`, `abi.py`, `channels.py`,
-  `errors.py`, `runtime.py`, `vision.py`, and `py.typed`, plus wheel
+  `errors.py`, `runtime.py`, and `py.typed`, plus wheel
   metadata. Repository cleanup must not add templates, examples, or tests to
   the wheel.
 

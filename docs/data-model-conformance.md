@@ -13,7 +13,7 @@ raw operations preserve byte-transparent forwarding when required.
 | `kt/speech/string_sample` | natural `str` | explicit generated adapter |
 | `kt/scalar/int64_value` | natural `int` | explicit generated adapter |
 | arrays and structured datatypes | immutable generated views | `Type.create(...)` for new values |
-| `kt/vision/vision_sample` | immutable generated view | RGB helper remains available |
+| `kt/vision/vision_sample` | immutable generated view | package-owned codec |
 | unregistered datatype | rejected | `MissingCodecError` |
 
 The complete canonical datatype registry remains owned by `kt_messages`. The
@@ -60,8 +60,8 @@ schema-agnostic through the explicitly named raw APIs.
 - `tests/unit/test_data_model_conformance.py` deterministically checks binary copying,
   empty/large payloads, source IDs, and optional timestamps in Python's ABI
   batch marshaling.
-- `tests/unit/test_vision_contract.py` checks deterministic VSM1 encode/decode,
-  stable malformed-payload rejection, exact 1080p metadata, and bounded peak RSS.
+- `kt-messages` owns datatype-specific construction and codec conformance; this
+  SDK consumes its public immutable views through the channel codec registry.
 - `tests/unit/test_typed_channels.py` covers natural values, immutable complex
   views, batch metadata, unchanged-view passthrough, missing codecs, malformed
   payloads, direction errors, and wrong output values.

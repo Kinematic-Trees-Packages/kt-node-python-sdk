@@ -18,7 +18,7 @@ access without changing that boundary:
 | Arrays and structured records | Immutable generated views |
 | Empty and binary payloads | Supported |
 | Source IDs and remote timestamps | Preserved on reads when supplied |
-| `kt/vision/vision_sample` RGB data | Immutable view plus RGB helper |
+| `kt/vision/vision_sample` RGB data | Generated immutable view and codec |
 | Every registered canonical datatype | Typed codec required |
 
 The SDK resolves codecs from the separately versioned

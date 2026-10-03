@@ -11,7 +11,7 @@
 | KTM packaging | v1.2.20+ v2 manifest contract |
 | Proving platform | Ubuntu 24.04, Linux x86_64 |
 | Required transports | HTTP, KT SHM |
-| Typed data helper | RGB `kt/vision/image_sample` (`VSM1`) |
+| Typed data model | Generated immutable `kt.messages` views and codecs |
 
 ABI major 1 is additive: V1 symbols remain available while V2 adds configuration-aware callbacks. ABI-major mismatch raises `AbiCompatibilityError` before runtime creation.
 
@@ -19,7 +19,7 @@ ABI major 1 is additive: V1 symbols remain available while V2 adds configuration
 
 - Windows or macOS runtime conformance
 - ARM runtime conformance
-- Typed Python helpers for non-vision canonical datatypes
+- Datatype-specific convenience adapters outside the generated `kt.messages` API
 - Python conformance for KT-LAN or WebRTC
 - ROS1, ROS2, DDS, or KT-WAN support
 - Hardware or robot deployment

@@ -28,7 +28,7 @@ class WheelTests(unittest.TestCase):
             wheel = BUILD_WHEEL.build_wheel(root, temporary / "wheelhouse")
             with zipfile.ZipFile(wheel) as archive:
                 names = archive.namelist()
-            self.assertIn("ktnode/vision.py", names)
+            self.assertNotIn("ktnode/vision.py", names)
             self.assertFalse(any(name.startswith("ktnode/generated/") for name in names))
             environment = temporary / "venv"
             subprocess.run([sys.executable, "-m", "venv", str(environment)], check=True)

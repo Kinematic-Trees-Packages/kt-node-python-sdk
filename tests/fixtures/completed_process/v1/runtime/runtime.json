@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "4",
+  "id": "python-string-passthrough",
+  "package": "node.package.json",
+  "execution": {"algorithm": {"mode": "event_driven"}},
+  "transport": {
+    "http": {
+      "bind": {"interface": "127.0.0.1", "port": 18080},
+      "routes": {
+        "example_input": {"mode": "server", "path": "/input", "method": "POST"},
+        "example_output": {"mode": "server", "path": "/output", "method": "GET"}
+      }
+    }
+  },
+  "channelDefaults": [
+    {
+      "match": {"direction": "input", "transport": "http"},
+      "buffer": {"capacity": 2, "treatment": "drop_old"}
+    },
+    {
+      "match": {"direction": "output", "transport": "http"},
+      "buffer": {"capacity": 2, "treatment": "drop_old"}
+    }
+  ],
+  "channelOverrides": {},
+  "config": {}
+}

@@ -197,7 +197,16 @@ def test_runtime_callback_dispatch_and_failure_reporting() -> None:
 
 def test_callback_trampolines_and_config_decode() -> None:
     lib = LifecycleLib()
-    value = runtime(lib)
+
+    class ConfigProbe(Node):
+        update: ConfigUpdate | None = None
+
+        def config_update(self, ctx, update):
+            self.update = update
+            return ConfigUpdateResult.ACCEPT
+
+    probe = ConfigProbe()
+    value = runtime(lib, probe)
     owner = ctypes.py_object(value)
     user_data = ctypes.cast(ctypes.pointer(owner), ctypes.c_void_p)
     ctx = ctypes.pointer(abi.KtAlgorithmContext())
@@ -219,6 +228,15 @@ def test_callback_trampolines_and_config_decode() -> None:
         setattr(raw, field, view)
         keepalive.append(encoded)
     assert _config_update_trampoline(user_data, ctx, ctypes.pointer(raw)) == ConfigUpdateResult.ACCEPT
+    assert probe.update == ConfigUpdate(
+        old_revision=3,
+        new_revision=4,
+        patch=[],
+        old_config={},
+        new_config={"mode": "safe"},
+        changed_paths=["/mode"],
+        flags=0,
+    )
 
 
 def test_runtime_info_and_structured_abi_error() -> None:

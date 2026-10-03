@@ -10,10 +10,11 @@
     "license": "MIT",
     "packageType": "local"
   },
-  "files": ["src", "package.ktm.json"],
+  "files": ["runtime", "scripts", "src", "tests", "package.ktm.json"],
   "distribution": {"packages": [], "urlStrategy": "local-relative"},
-  "runEnvironments": [{"name": "linux_20", "type": "native", "os": "linux", "arch": "x64", "hostRequirements": {"libc": {"implementation": "glibc", "minimumVersion": "2.29"}}, "recipes": []}],
+  "runEnvironments": [{"name": "linux_20", "type": "native", "os": "linux", "arch": "x64", "hostRequirements": {"libc": {"implementation": "glibc", "minimumVersion": "2.29"}}, "recipes": [{"action": "build", "command": {"program": "scripts/build.sh", "args": []}, "timeoutSeconds": 300}]}],
   "runtime": {"sdk": "python"},
+  "development": {"commands": {"build": ["scripts/build.sh"], "test": ["scripts/test.sh"], "smoke": ["scripts/test.sh"]}},
   "dependencies": {
     "system": [],
     "packages": [
@@ -24,8 +25,8 @@
   },
   "resources": {"gpu": false, "ports": [], "x11": false},
   "dataflow": {
-    "inputs": [{"name": "text_in", "datatype": "kt/speech/string_sample", "required": true}],
-    "outputs": [{"name": "text_out", "datatype": "kt/speech/string_sample"}]
+    "inputs": [{"name": "example_input", "datatype": "kt/speech/string_sample", "required": true}],
+    "outputs": [{"name": "example_output", "datatype": "kt/speech/string_sample"}]
   },
   "config": {"type": "object", "properties": {}, "required": []}
 }

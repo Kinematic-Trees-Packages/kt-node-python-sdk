@@ -11,6 +11,7 @@ import subprocess
 
 
 ASSERTION_NEEDLE = 'self.assertEqual(Robot.__mro__[1].__name__, "Node")'
+STEP_TODO = 'raise NotImplementedError("TODO: implement step")'
 
 
 def run_ktm(
@@ -97,6 +98,27 @@ def verify(args: argparse.Namespace) -> None:
             expect_success=False,
             diagnostics=("ModuleNotFoundError", "deliberately_missing_kin14_dependency"),
         )
+
+        test_file.write_text(test_backup.read_text())
+        robot_file = project / "src" / next((project / "src").iterdir()).name / "robot.py"
+        robot_backup = robot_file.with_suffix(".py.kin52-baseline")
+        shutil.copy2(robot_file, robot_backup)
+        try:
+            source = robot_backup.read_text()
+            if STEP_TODO not in source:
+                raise SystemExit("generated step TODO seam is missing")
+            robot_file.write_text(source.replace(STEP_TODO, "return NextStep.CONTINUE", 1))
+            run_ktm(
+                ktm=args.ktm,
+                home=home,
+                platform=args.platform,
+                project=project,
+                log=logs / "missing-step-todo.log",
+                expect_success=False,
+                diagnostics=("TODO: implement step",),
+            )
+        finally:
+            shutil.move(robot_backup, robot_file)
 
         shutil.copy2(test_backup, test_file)
         example_file.write_text('raise RuntimeError("KIN-14 deliberate example failure")\n')

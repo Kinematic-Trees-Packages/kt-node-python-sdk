@@ -6,14 +6,20 @@ import argparse
 import http.client
 import json
 import socket
+import sys
 import tempfile
 import threading
 import time
-from dataclasses import dataclass, field
 from pathlib import Path
 
 from kt.messages import codec_for
-from ktnode import Context, Get, NextStep, Node, Runtime, Set
+from ktnode import Runtime
+
+
+FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "completed_process" / "v1"
+sys.path.insert(0, str(FIXTURE / "src"))
+
+from passthrough import Robot  # noqa: E402
 
 
 def reserve_port() -> int:
@@ -68,22 +74,6 @@ def write_fixture(directory: Path, port: int) -> tuple[str, str]:
     return str(package), str(runtime)
 
 
-@dataclass
-class TypedRelay(Node):
-    observed: list[str] = field(default_factory=list)
-    published: threading.Event = field(default_factory=threading.Event)
-
-    def step(self, ctx: Context) -> NextStep:
-        value = Get(ctx, "example_input")
-        if value is None:
-            return NextStep.CONTINUE
-        assert isinstance(value, str)
-        self.observed.append(value)
-        Set(ctx, "example_output", value)
-        self.published.set()
-        return NextStep.CONTINUE
-
-
 def request(port: int, method: str, path: str, body: bytes = b"") -> tuple[int, bytes]:
     deadline = time.monotonic() + 10
     while True:
@@ -124,7 +114,7 @@ def run(library: str) -> dict[str, object]:
     with tempfile.TemporaryDirectory(prefix="kt-python-typed-") as temporary:
         port = reserve_port()
         package, runtime_path = write_fixture(Path(temporary), port)
-        relay = TypedRelay()
+        relay = Robot()
         runtime = Runtime(package, runtime_path, relay, library_path=library)
         failure: list[BaseException] = []
 
@@ -139,7 +129,6 @@ def run(library: str) -> dict[str, object]:
         stream: socket.socket | None = None
         try:
             stream = post_without_waiting(port, encoded)
-            assert relay.published.wait(10), "typed callback did not publish"
             deadline = time.monotonic() + 10
             output = b""
             while time.monotonic() < deadline:
@@ -154,6 +143,9 @@ def run(library: str) -> dict[str, object]:
             runner.join(10)
             assert not runner.is_alive()
             assert not failure, failure
+            assert relay.calls[0] == "setup"
+            assert relay.calls[-1] == "close"
+            assert relay.close_count == 1
         finally:
             if stream is not None:
                 stream.close()
@@ -161,7 +153,14 @@ def run(library: str) -> dict[str, object]:
                 runtime.request_close()
                 runner.join(5)
             runtime.close()
-    return {"datatype": "kt/speech/string_sample", "value": text, "payloadBytes": len(encoded)}
+    return {
+        "datatype": "kt/speech/string_sample",
+        "value": text,
+        "payloadBytes": len(encoded),
+        "fixture": "completed_process/v1",
+        "callbacks": relay.calls,
+        "closeCount": relay.close_count,
+    }
 
 
 def main() -> None:

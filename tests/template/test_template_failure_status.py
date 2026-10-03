@@ -161,7 +161,7 @@ class TemplateFailureStatusTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual((self.project / "tests" / "test_smoke.py").read_bytes(), original_test)
         self.assertEqual((self.project / "examples" / "basic.py").read_bytes(), original_example)
-        self.assertEqual(len(list(logs.glob("*.log"))), 5)
+        self.assertEqual(len(list(logs.glob("*.log"))), 6)
 
     def test_packaged_boilerplate_is_the_only_template_authority(self) -> None:
         self.assertTrue((ROOT / "template-package" / "boilerplate" / "ktm-template.json").is_file())

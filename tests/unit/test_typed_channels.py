@@ -105,6 +105,8 @@ def test_get_returns_immutable_complex_view():
     assert isinstance(value, Command)
     assert value.command == "move"
     assert value.timestamp == 42
+    with pytest.raises(TypeError, match="immutable.*Command.create"):
+        value.command = "mutated"
     ctx._invalidate()
     assert value.command == "move"
 

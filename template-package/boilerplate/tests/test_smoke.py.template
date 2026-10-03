@@ -10,14 +10,30 @@ class RobotSmokeTests(unittest.TestCase):
 
     def test_all_callback_todos_are_explicit(self) -> None:
         robot = Robot()
-        with self.assertRaisesRegex(NotImplementedError, "TODO: implement setup"):
+        with self.assertRaisesRegex(
+            NotImplementedError,
+            "TODO: implement setup",
+            msg="TODO: implement setup",
+        ):
             robot.setup(None)
-        with self.assertRaisesRegex(NotImplementedError, "TODO: implement step"):
+        with self.assertRaisesRegex(
+            NotImplementedError,
+            "TODO: implement step",
+            msg="TODO: implement step",
+        ):
             robot.step(None)
-        with self.assertRaisesRegex(NotImplementedError, "TODO: implement close"):
+        with self.assertRaisesRegex(
+            NotImplementedError,
+            "TODO: implement close",
+            msg="TODO: implement close",
+        ):
             robot.close(None)
         update = ConfigUpdate(0, 1, [], {}, {}, [], 0)
-        with self.assertRaisesRegex(NotImplementedError, "TODO: implement config_update"):
+        with self.assertRaisesRegex(
+            NotImplementedError,
+            "TODO: implement config_update",
+            msg="TODO: implement config_update",
+        ):
             robot.config_update(None, update)
 
 

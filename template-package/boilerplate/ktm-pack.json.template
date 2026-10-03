@@ -11,25 +11,28 @@
     "**/.DS_Store"
   ],
   "lists": {
+    "contracts": {
+      "description": "The single package contract and optional sibling runtime configuration remain at archive root.",
+      "include": ["package.ktm.json", "runtime.json"]
+    },
     "compiled": {
-      "description": "Python source is the runtime artifact, so compiled mode includes the Python package tree.",
-      "include": ["runtime"]
+      "description": "Python source is the runtime artifact; dependencies stay KTM-managed and are not vendored.",
+      "include": ["pyproject.toml", "src"]
     },
     "source": {
-      "description": "Python project source and tests used to develop and validate the runtime package.",
-      "include": ["source"]
+      "description": "Optional development documentation and scripts for editable source packages.",
+      "include": ["development"]
     }
   },
   "modes": {
     "compiled": {
       "description": "Publish only the compiled/runtime artifact list.",
-      "lists": [
-        "compiled"
-      ]
+      "lists": ["contracts", "compiled"]
     },
     "compiled-source": {
       "description": "Publish compiled/runtime artifacts plus the source list. Dependencies remain KTM-managed.",
       "lists": [
+        "contracts",
         "compiled",
         "source"
       ]
@@ -37,9 +40,9 @@
   },
   "assertions": {
     "required": [
-      "runtime/src",
-      "runtime/runtime/node.package.json",
-      "runtime/runtime/runtime.json"
+      "package.ktm.json",
+      "runtime.json",
+      "src"
     ],
     "forbidden": ["**/__pycache__/**", "**/*.py[cod]", "**/.env", "**/*.pem"]
   },

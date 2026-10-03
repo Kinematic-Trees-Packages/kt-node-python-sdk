@@ -4,12 +4,11 @@
     {"id": "dependency", "owner": "lifecycle", "condition": "missing or misclassified SDK/data-types dependency"},
     {"id": "required-route", "owner": "cross-file", "condition": "required value input has no route"},
     {"id": "unknown-route", "owner": "cross-file", "condition": "runtime route names an undeclared channel"},
-    {"id": "datatype", "owner": "node", "condition": "logical channel is not kt/common/int64_value"},
-    {"id": "duplicate-channel", "owner": "node", "condition": "logical channel name is duplicated"},
+    {"id": "datatype", "owner": "package", "condition": "logical channel is not kt/common/int64_value"},
+    {"id": "duplicate-channel", "owner": "package", "condition": "logical channel name is duplicated"},
     {"id": "increment-config", "owner": "cross-file", "condition": "increment is missing or is not an integer"},
     {"id": "payload", "owner": "process", "condition": "Int64Value payload is malformed"},
     {"id": "multiplicity", "owner": "process", "condition": "single-source value input receives multiple sources"},
     {"id": "overflow", "owner": "process", "condition": "increment result exceeds signed 64-bit range"}
   ]
 }
-

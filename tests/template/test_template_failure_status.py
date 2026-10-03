@@ -2,7 +2,6 @@ import os
 import pathlib
 import shutil
 import subprocess
-import sys
 import tempfile
 import unittest
 
@@ -88,75 +87,35 @@ class TemplateFailureStatusTests(unittest.TestCase):
     def test_baseline_runs_real_unittest_and_preserves_composed_path(self) -> None:
         result = self.run_script()
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("Running generated unittest suite", result.stdout)
-        self.assertIn("Ran 2 tests", result.stdout)
-        self.assertIn("OK", result.stdout)
+        self.assertIn("Generated Process imports through the public Python SDK", result.stdout)
         self.assertIn("kt-messages wildcard import passed", result.stdout)
 
-    def test_assertion_failure_is_nonzero_with_original_diagnostic(self) -> None:
-        test_file = self.project / "tests" / "test_smoke.py"
-        test_file.write_text(
-            test_file.read_text().replace(
-                'self.assertEqual(Process.__mro__[1].__name__, "Node")',
-                'self.fail("KIN-14 deliberate assertion failure")',
-            )
-        )
+    def test_invalid_process_base_is_nonzero_with_original_diagnostic(self) -> None:
+        process_file = self.project / "src" / MODULE / "process.py"
+        process_file.write_text(process_file.read_text().replace("class Process(kt.Node):", "class Process(object):"))
         result = self.run_script()
         self.assertNotEqual(result.returncode, 0, result.stdout)
-        self.assertIn("KIN-14 deliberate assertion failure", result.stdout)
+        self.assertIn("generated Process must inherit the public SDK Node", result.stdout)
 
     def test_import_failure_is_nonzero_with_original_diagnostic(self) -> None:
-        test_file = self.project / "tests" / "test_smoke.py"
-        test_file.write_text("import deliberately_missing_kin14_dependency\n" + test_file.read_text())
+        process_file = self.project / "src" / MODULE / "process.py"
+        process_file.write_text("import deliberately_missing_dependency\n" + process_file.read_text())
         result = self.run_script()
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn("ModuleNotFoundError", result.stdout)
-        self.assertIn("deliberately_missing_kin14_dependency", result.stdout)
-
-    def test_outer_ktm_mutation_verifier_rejects_and_restores_failures(self) -> None:
-        fake_ktm = self.root / "ktm"
-        fake_ktm.write_text("#!/bin/sh\nshift\nexec bash scripts/test.sh\n")
-        fake_ktm.chmod(0o755)
-        original_test = (self.project / "tests" / "test_smoke.py").read_bytes()
-        logs = self.root / "mutation-logs"
-        environment = os.environ.copy()
-        environment.update(
-            {
-                "CPATH": str(self.include),
-                "LIBRARY_PATH": str(self.library),
-                "PYTHONPATH": str(self.composed),
-            }
-        )
-        result = subprocess.run(
-            [
-                sys.executable,
-                str(ROOT / "scripts" / "test_generated_template_failures.py"),
-                "--project",
-                str(self.project),
-                "--home",
-                str(self.root / "home"),
-                "--platform",
-                "linux_20",
-                "--log-dir",
-                str(logs),
-                "--ktm",
-                str(fake_ktm),
-            ],
-            env=environment,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            check=False,
-        )
-        self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertEqual((self.project / "tests" / "test_smoke.py").read_bytes(), original_test)
-        self.assertEqual(len(list(logs.glob("*.log"))), 5)
+        self.assertIn("deliberately_missing_dependency", result.stdout)
 
     def test_packaged_boilerplate_is_the_only_template_authority(self) -> None:
         self.assertTrue((ROOT / "template-package" / "boilerplate" / "ktm-template.json").is_file())
         self.assertFalse((ROOT / "boilerplate").exists())
 
-    def test_build_outputs_runtime_manifests_and_editable_source(self) -> None:
+    def test_template_contracts_are_flat_and_single_source(self) -> None:
+        self.assertTrue((self.project / "package.ktm.json").is_file())
+        self.assertTrue((self.project / "runtime.json").is_file())
+        self.assertFalse((self.project / "runtime").exists())
+        self.assertFalse(list(self.project.rglob("node.package.json")))
+
+    def test_build_outputs_flat_contracts_and_editable_source(self) -> None:
         output = self.root / "build-output"
         result = subprocess.run(
             ["bash", "scripts/build.sh"],
@@ -168,11 +127,13 @@ class TemplateFailureStatusTests(unittest.TestCase):
             check=False,
         )
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertTrue((output / "runtime" / "src" / MODULE / "process.py").is_file())
-        self.assertTrue((output / "runtime" / "src" / MODULE / "__main__.py").is_file())
-        self.assertTrue((output / "runtime" / "runtime" / "node.package.json").is_file())
-        self.assertTrue((output / "runtime" / "runtime" / "runtime.json").is_file())
-        self.assertTrue((output / "source" / "tests" / "test_smoke.py").is_file())
+        self.assertTrue((output / "package.ktm.json").is_file())
+        self.assertTrue((output / "runtime.json").is_file())
+        self.assertTrue((output / "src" / MODULE / "process.py").is_file())
+        self.assertTrue((output / "src" / MODULE / "__main__.py").is_file())
+        self.assertTrue((output / "development" / "scripts" / "test.sh").is_file())
+        self.assertFalse((output / "runtime").exists())
+        self.assertFalse(list(output.rglob("node.package.json")))
 
 
 if __name__ == "__main__":

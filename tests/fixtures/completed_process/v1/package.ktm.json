@@ -10,11 +10,10 @@
     "license": "MIT",
     "packageType": "local"
   },
-  "files": ["runtime", "scripts", "src", "tests", "package.ktm.json"],
+  "files": ["runtime.json", "scripts", "src", "tests", "package.ktm.json"],
   "distribution": {"packages": [], "urlStrategy": "local-relative"},
-  "runEnvironments": [{"name": "linux_20", "type": "native", "os": "linux", "arch": "x64", "hostRequirements": {"libc": {"implementation": "glibc", "minimumVersion": "2.29"}}, "recipes": [{"action": "build", "command": {"program": "scripts/build.sh", "args": []}, "timeoutSeconds": 300}]}],
-  "runtime": {"sdk": "python"},
-  "development": {"commands": {"build": ["scripts/build.sh"], "test": ["scripts/test.sh"], "smoke": ["scripts/test.sh"]}},
+  "runEnvironments": [{"name": "linux_20", "type": "native", "os": "linux", "arch": "x64", "hostRequirements": {"libc": {"implementation": "glibc", "minimumVersion": "2.29"}}, "recipes": [{"action": "build", "command": {"program": "scripts/build.sh", "args": []}, "timeoutSeconds": 300}, {"action": "test", "command": {"program": "scripts/test.sh", "args": []}, "timeoutSeconds": 300}]}],
+  "runtime": {"sdk": "python", "languageVersion": ">=3.9"},
   "dependencies": {
     "system": [],
     "packages": [

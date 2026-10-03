@@ -174,7 +174,8 @@
     }
   ],
   "runtime": {
-    "sdk": "python"
+    "sdk": "python",
+    "languageVersion": ">=3.9"
   },
   "schemaVersion": "3"
 }

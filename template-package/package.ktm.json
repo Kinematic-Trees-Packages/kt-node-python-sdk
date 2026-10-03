@@ -24,7 +24,7 @@
       ]
     }
   ],
-  "runtime": {"sdk": "python"},
+  "runtime": {"sdk": "python", "languageVersion": ">=3.9"},
   "dependencies": {
     "system": [],
     "packages": [

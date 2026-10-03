@@ -1,7 +1,7 @@
 {
   "schemaVersion": "4",
-  "id": "python-minimum-contract",
-  "package": "node.package.json",
+  "id": "python-minimum-contract-instance",
+  "package": "./package.ktm.json",
   "execution": {"algorithm": {"mode": "event_driven"}},
   "transport": {"http": {
     "bind": {"interface": "127.0.0.1", "port": 8080},

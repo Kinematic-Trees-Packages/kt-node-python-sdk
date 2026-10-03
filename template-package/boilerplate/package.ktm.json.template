@@ -11,11 +11,10 @@
     "packageType": "local",
     "keywords": ["kinematic-trees", "robotics", "kt-node", "{{KTM_CREATE_LANGUAGE}}"]
   },
-  "files": ["README.md", "scripts", "runtime", "package.ktm.json", "ktm-pack.json", "src"],
+  "files": ["README.md", "scripts", "runtime.json", "package.ktm.json", "ktm-pack.json", "pyproject.toml", "src"],
   "distribution": {"packages": []},
   "runEnvironments": {{KTM_CREATE_RUN_ENVIRONMENTS_JSON}},
-  "runtime": {"sdk": "{{KTM_CREATE_RUNTIME_SDK}}"},
-  "development": {"commands": {"build": ["scripts/build.sh"], "test": ["scripts/test.sh"], "smoke": ["scripts/test.sh"]}},
+  "runtime": {"sdk": "{{KTM_CREATE_RUNTIME_SDK}}", "languageVersion": ">=3.9"},
   "dependencies": {
     "system": [],
     "packages": [

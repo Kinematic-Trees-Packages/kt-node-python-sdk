@@ -9,7 +9,7 @@ from .process import Process
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run {{KTM_CREATE_PROJECT_NAME}}")
-    parser.add_argument("--package", required=True, help="node package manifest")
+    parser.add_argument("--package", required=True, help="lifecycle package manifest")
     parser.add_argument("--runtime", required=True, help="runtime configuration")
     args = parser.parse_args()
     kt.run(args.package, args.runtime, Process())

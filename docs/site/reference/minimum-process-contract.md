@@ -5,9 +5,8 @@ the smallest useful typed Python process. Its documents stay distinct:
 
 | Document | Version | Authority |
 | --- | --- | --- |
-| lifecycle package | `3` | release metadata, dependencies, files, and direct-execution recipes |
-| runtime node package | `4` | logical input/output names, datatypes, and config schema |
-| runtime configuration | `4` | process identity, scheduling, routes, buffering, and config values |
+| root package | `3` | release metadata, dependencies, files, recipes, channels, and config schema |
+| root runtime configuration | `4` | instance identity, scheduling, routes, buffering, and config values |
 
 ## Typed increment example
 
@@ -25,7 +24,7 @@ invent one. Timestamped output is outside ABI 1.2.
 The explicit process entrypoint is an argument vector, not a shell string:
 
 ```text
-python3 -m minimum_contract --package runtime/node.package.json --runtime runtime/runtime.json
+python3 -m minimum_contract --package package.ktm.json --runtime runtime.json
 ```
 
 Python addresses only `value` and `incremented`; `/value` and `/incremented`
@@ -42,6 +41,5 @@ multiple sources, or signed-64-bit overflow.
 ## Proposed release-description decision
 
 **Proposal, not current platform fact:** lifecycle-v3 `metadata.description`
-should be the authoring authority and a registry release should snapshot it
-immutably. Node-v4 and runtime-v4 should not override it. Package/schema and
-registry owners must approve this before tooling depends on it.
+is the authoring authority and a registry release snapshots it immutably.
+Runtime-v4 cannot override package metadata, channels, or configuration schema.

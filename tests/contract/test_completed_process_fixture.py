@@ -16,19 +16,13 @@ from passthrough import Process  # noqa: E402
 
 def test_completed_process_is_versioned_and_separate_from_public_starter() -> None:
     manifest = json.loads((FIXTURE / "package.ktm.json").read_text(encoding="utf-8"))
-    node = json.loads((FIXTURE / "runtime" / "node.package.json").read_text(encoding="utf-8"))
-    runtime = json.loads((FIXTURE / "runtime" / "runtime.json").read_text(encoding="utf-8"))
+    runtime = json.loads((FIXTURE / "runtime.json").read_text(encoding="utf-8"))
     assert manifest["dataflow"]["inputs"][0]["name"] == "example_input"
     assert manifest["dataflow"]["outputs"][0]["name"] == "example_output"
-    assert {
-        direction: [
-            {key: value for key, value in channel.items() if key != "description"}
-            for channel in channels
-        ]
-        for direction, channels in node["dataflow"].items()
-    } == manifest["dataflow"]
-    assert runtime["id"] == node["metadata"]["name"]
-    assert runtime["package"] == "node.package.json"
+    assert runtime["id"] == "python-string-passthrough-instance"
+    assert runtime["package"] == "./package.ktm.json"
+    assert not (FIXTURE / "runtime").exists()
+    assert not list(FIXTURE.rglob("node.package.json"))
     completed = (FIXTURE / "src" / "passthrough" / "process.py").read_text(encoding="utf-8")
     starter = (
         ROOT

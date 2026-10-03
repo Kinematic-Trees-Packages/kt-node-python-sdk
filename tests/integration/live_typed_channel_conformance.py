@@ -29,17 +29,31 @@ def reserve_port() -> int:
 
 
 def write_fixture(directory: Path, port: int) -> tuple[str, str]:
-    package = directory / "node.package.json"
+    package = directory / "package.ktm.json"
     runtime = directory / "runtime.json"
     package.write_text(
         json.dumps(
             {
-                "schemaVersion": "4",
-                "metadata": {"name": "python-typed-channel-conformance"},
+                "schemaVersion": "3",
+                "metadata": {
+                    "name": "python-typed-channel-conformance",
+                    "version": "0.1.0",
+                    "description": "Live typed-channel conformance fixture.",
+                    "author": "Kinematic Trees",
+                },
                 "dataflow": {
                     "inputs": [{"name": "example_input", "datatype": "kt/speech/string_sample"}],
                     "outputs": [{"name": "example_output", "datatype": "kt/speech/string_sample"}],
                 },
+                "config": {"type": "object", "properties": {}, "required": []},
+                "runtime": {"sdk": "python", "languageVersion": ">=3.9"},
+                "runEnvironments": [
+                    {
+                        "name": "portable",
+                        "type": "portable",
+                        "recipes": [{"action": "run", "commands": ["python3 -m fixture"]}],
+                    }
+                ],
             }
         ),
         encoding="utf-8",
@@ -49,7 +63,7 @@ def write_fixture(directory: Path, port: int) -> tuple[str, str]:
             {
                 "schemaVersion": "4",
                 "id": "python-typed-channel-conformance",
-                "package": "node.package.json",
+                "package": "./package.ktm.json",
                 "execution": {"algorithm": {"mode": "event_driven"}},
                 "transport": {
                     "http": {
@@ -67,6 +81,7 @@ def write_fixture(directory: Path, port: int) -> tuple[str, str]:
                     }
                     for direction in ("input", "output")
                 ],
+                "config": {},
             }
         ),
         encoding="utf-8",

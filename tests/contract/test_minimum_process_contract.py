@@ -13,27 +13,27 @@ def load(name: str) -> dict[str, object]:
 
 
 def test_contract_keeps_boundaries_distinct() -> None:
-    lifecycle = load("lifecycle.package.ktm.json")
-    node = load("node.package.json")
+    package = load("package.ktm.json")
     runtime = load("runtime.json")
-    assert lifecycle["schemaVersion"] == "3"
-    assert node["schemaVersion"] == runtime["schemaVersion"] == "4"
-    assert "dataflow" not in lifecycle
-    assert "dependencies" not in node and "transport" not in node
+    assert package["schemaVersion"] == "3"
+    assert runtime["schemaVersion"] == "4"
+    assert "dataflow" in package and "config" in package
     assert "dependencies" not in runtime and "dataflow" not in runtime
-    assert runtime["package"] == "node.package.json"
+    assert runtime["package"] == "./package.ktm.json"
+    assert runtime["id"] != package["metadata"]["name"]
+    assert not list(FIXTURE.rglob("node.package.json"))
 
 
 def test_contract_freezes_typed_semantics_routes_and_defaults() -> None:
-    node = load("node.package.json")
+    package = load("package.ktm.json")
     runtime = load("runtime.json")
-    inputs = node["dataflow"]["inputs"]
-    outputs = node["dataflow"]["outputs"]
+    inputs = package["dataflow"]["inputs"]
+    outputs = package["dataflow"]["outputs"]
     assert [(item["name"], item["datatype"]) for item in inputs] == [("value", "kt/common/int64_value")]
     assert inputs[0]["required"] is True
     assert [(item["name"], item["datatype"]) for item in outputs] == [("incremented", "kt/common/int64_value")]
-    assert node["config"]["properties"]["increment"]["default"] == 1
-    assert node["config"]["required"] == ["increment"]
+    assert package["config"]["properties"]["increment"]["default"] == 1
+    assert package["config"]["required"] == ["increment"]
     assert runtime["config"] == {"increment": 1}
     routes = runtime["transport"]["http"]["routes"]
     assert set(routes) == {"value", "incremented"}
@@ -43,12 +43,12 @@ def test_contract_freezes_typed_semantics_routes_and_defaults() -> None:
 
 
 def test_lifecycle_declares_direct_process_entrypoint() -> None:
-    lifecycle = load("lifecycle.package.ktm.json")
-    run = lifecycle["runEnvironments"][0]["recipes"][0]
+    package = load("package.ktm.json")
+    run = package["runEnvironments"][0]["recipes"][0]
     assert run["action"] == "run"
     assert run["command"] == {
         "program": "python3",
-        "args": ["-m", "minimum_contract", "--package", "runtime/node.package.json", "--runtime", "runtime/runtime.json"],
+        "args": ["-m", "minimum_contract", "--package", "package.ktm.json", "--runtime", "runtime.json"],
     }
 
 
@@ -59,7 +59,7 @@ def test_fixture_versions_required_validation_failures() -> None:
         "dependency", "required-route", "unknown-route", "datatype", "duplicate-channel",
         "increment-config", "payload", "multiplicity", "overflow",
     ]
-    assert {failure["owner"] for failure in errors["failures"]} == {"lifecycle", "node", "cross-file", "process"}
+    assert {failure["owner"] for failure in errors["failures"]} == {"lifecycle", "package", "cross-file", "process"}
 
 
 def test_contract_records_metadata_and_error_decisions() -> None:

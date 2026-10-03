@@ -6,11 +6,13 @@ Use this checklist before changing `ktm-pack.json`, `scripts/build.sh`, or packa
 
 ### `compiled`
 
-- [ ] `scripts/build.sh` writes the runtime tree to `$KTM_BUILD_OUTPUT/runtime`.
-- [ ] The `compiled` list includes `runtime`.
+- [ ] `scripts/build.sh` writes one flat package tree to `$KTM_BUILD_OUTPUT`.
+- [ ] The `contracts` list includes only root `package.ktm.json` and `runtime.json`.
+- [ ] The `compiled` list includes `pyproject.toml` and `src`.
 - [ ] Python bytecode/cache directories such as `__pycache__/` and `.pytest_cache/` are absent from the archive.
-- [ ] The archive contains `runtime/src/{{KTM_CREATE_MODULE_NAME}}/process.py` and `runtime/src/{{KTM_CREATE_MODULE_NAME}}/__main__.py`.
-- [ ] The archive contains `runtime/runtime/node.package.json` and `runtime/runtime/runtime.json`.
+- [ ] The archive contains `src/{{KTM_CREATE_MODULE_NAME}}/process.py` and `src/{{KTM_CREATE_MODULE_NAME}}/__main__.py`.
+- [ ] The archive contains one root `package.ktm.json` and one root `runtime.json`.
+- [ ] The archive contains no `runtime/` directory or `node.package.json`.
 - [ ] The archive does not contain `docs/` by default.
 
 Run:
@@ -22,8 +24,8 @@ ktm pack --mode compiled
 ### `compiled-source`
 
 - [ ] The `compiled-source` mode composes `compiled` and `source` lists.
-- [ ] The `source` list contains the editable project, tests, and scripts.
-- [ ] The `compiled-source` archive contains both the runtime payload and development source payload.
+- [ ] The `source` list contains optional development documentation and scripts.
+- [ ] The `compiled-source` archive adds `development/` without duplicating root contracts.
 
 Run:
 
@@ -58,7 +60,7 @@ tar -tzf _pack/*/{{KTM_CREATE_PRIMARY_PLATFORM}}/*.tar.gz | sort
 
 Expected defaults:
 
-- `compiled`: only the `runtime/` payload root.
-- `compiled-source`: the `runtime/` and `source/` payload roots.
+- `compiled`: root contracts plus `pyproject.toml` and `src/`.
+- `compiled-source`: the same runtime payload plus `development/`.
 - `docs/`: present in the generated project folder, absent from archives by default.
 - `deps/`, `.ktrees/`, KTM store paths, and kt-node dependency libraries: absent from normal pack archives.

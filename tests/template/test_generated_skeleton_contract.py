@@ -86,9 +86,9 @@ def test_each_callback_todo_has_a_multiline_explanation() -> None:
         assert end in source
 
 
-def test_package_and_node_manifests_declare_the_same_string_channels() -> None:
+def test_template_has_one_root_package_and_one_root_runtime_contract() -> None:
     package = _manifest("package.ktm.json.template")
-    node = _manifest("runtime/node.package.json.template")
+    runtime = _manifest("runtime.json.template")
 
     assert package["dataflow"] == {
         "inputs": [
@@ -102,23 +102,21 @@ def test_package_and_node_manifests_declare_the_same_string_channels() -> None:
             {"name": "example_output", "datatype": "kt/speech/string_sample"}
         ],
     }
-    node_dataflow = node["dataflow"]
-    assert [
-        {key: value for key, value in channel.items() if key != "description"}
-        for channel in node_dataflow["inputs"]
-    ] == package["dataflow"]["inputs"]
-    assert [
-        {key: value for key, value in channel.items() if key != "description"}
-        for channel in node_dataflow["outputs"]
-    ] == package["dataflow"]["outputs"]
+    assert runtime["package"] == "./package.ktm.json"
+    assert package["runtime"] == {"sdk": "{{KTM_CREATE_RUNTIME_SDK}}", "languageVersion": ">=3.9"}
+    assert "development" not in package
+    assert "runtime.json" in package["files"]
+    assert "runtime" not in package["files"]
+    assert not (BOILERPLATE / "runtime").exists()
+    assert not list(BOILERPLATE.rglob("node.package.json.template"))
 
 
 def test_runtime_manifest_is_complete_but_approach_neutral() -> None:
-    runtime = _manifest("runtime/runtime.json.template")
+    runtime = _manifest("runtime.json.template")
     assert runtime == {
         "schemaVersion": "4",
         "id": "{{KTM_CREATE_PACKAGE_NAME}}",
-        "package": "node.package.json",
+        "package": "./package.ktm.json",
         "channelDefaults": [],
         "channelOverrides": {},
         "config": {},

@@ -6,7 +6,7 @@ from ktnode import ChannelContractError, ChannelContractIndex, UnknownChannelErr
 
 
 def write_package(tmp_path, inputs=None, outputs=None):
-    package = tmp_path / "node.package.json"
+    package = tmp_path / "package.ktm.json"
     package.write_text(
         json.dumps({"dataflow": {"inputs": inputs or [], "outputs": outputs or []}}),
         encoding="utf-8",
@@ -75,7 +75,7 @@ def test_contract_mappings_are_immutable(tmp_path):
     ],
 )
 def test_index_rejects_invalid_document_shapes(tmp_path, document, message):
-    package = tmp_path / "node.package.json"
+    package = tmp_path / "package.ktm.json"
     package.write_text(document, encoding="utf-8")
     with pytest.raises(ChannelContractError, match=message):
         ChannelContractIndex.from_package(package)
